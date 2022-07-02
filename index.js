@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(cors());
 
 app.get("/ping", (_, res) => {
-  res.send("pong");
+  res.send("pongg");
 });
 
 app.post("/echo", (req, res) => {
