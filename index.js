@@ -9,6 +9,7 @@ const pgp = require('pg-promise')()
 const db = pgp(buildDBConnectionObj())
 
 function buildDBConnectionObj() {
+  // Note: `DATABASE_URL` is the var name supplied by Heroku - do not change.
   let db_url = process.env.DATABASE_URL
 
   if (!db_url) {
