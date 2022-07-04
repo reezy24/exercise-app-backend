@@ -5,8 +5,10 @@ const app = express();
 const cors = require("cors");
 const port = process.env.PORT || 4000;
 
-const pgp = require('pg-promise')()
-const db = pgp(buildDBConnectionObj())
+const { Client } = require('pg')
+const db = new Client(buildDBConnectionObj())
+
+db.connect()
 
 function buildDBConnectionObj() {
   // Note: `DATABASE_URL` is the var name supplied by Heroku - do not change.
@@ -25,7 +27,7 @@ function buildDBConnectionObj() {
 
   if (process.env.POSTGRES_REQUIRE_SSL) {
     ssl = {
-      rejectUnauthorized: process.env.POSTGRES_REJECT_UNAUTHORIZED,
+      rejectUnauthorized: Boolean(process.env.POSTGRES_REJECT_UNAUTHORIZED),
     }
   }
 
@@ -46,14 +48,13 @@ app.post("/echo", (req, res) => {
   res.send(req.body);
 });
 
-app.get('/users', (req, res) => {
-  db.any('select * from users')
-    .then((data) => {
-      res.send(data)
-    })
-    .catch((error) => {
-      res.send(error)
-    })
+app.get('/users', async (_, res, next) => {
+  try {
+    const dbres = await db.query('select * from users')
+    res.send(dbres.rows)
+  } catch (err) {
+    next(err)
+  }
 })
 
 app.listen(port, () => {
