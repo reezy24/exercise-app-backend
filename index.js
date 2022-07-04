@@ -25,7 +25,7 @@ function buildDBConnectionObj() {
 
   if (process.env.POSTGRES_REQUIRE_SSL) {
     ssl = {
-      rejectUnauthorized: POSTGRES_REJECT_UNAUTHORIZED,
+      rejectUnauthorized: process.env.POSTGRES_REJECT_UNAUTHORIZED,
     }
   }
 
