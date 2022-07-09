@@ -14,7 +14,9 @@ https://exercise-app-backend-420.herokuapp.com
 1. Install an SQL client of your choice - I use [DBeaver](https://dbeaver.io/) for Windows.
 1. Start the Postgres server (probably via your CLI). For WSL the command is `sudo service postgresql start`. If you use another OS, add your instructions here.
 1. Connect to your Postgres server via your SQL client.
+    * Note: If you run into the error `FATAL: password authentication failed for user "postgres"` follow [these steps](https://stackoverflow.com/a/55039419).
 1. Run the queries inside `/database/migrations` in ascending order.
+    * Note: You'll likely have to create the database (very first migration file) and then reconnect to that database before running the other queries.
 1. OPTIONAL: Insert a test user using the `/database/helpers/insert-user.sql` query. When the app is running (instructions below), you can verify the DB connection by accessing `localhost:5000/users` and your test user should come back as a JSON object. 
 
 ### App Setup
