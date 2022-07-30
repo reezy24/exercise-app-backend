@@ -1,12 +1,20 @@
 require("dotenv").config();
+const passport = require('passport')
 
 const express = require("express");
+const session = require("express-session")
 const app = express();
+app.use(session({ secret: process.env.SESSION_SECRET }))
+app.use(passport.initialize())
+app.use(passport.session())
+
 const cors = require("cors");
 const port = process.env.PORT || 4000;
 
 const { Client } = require('pg')
 const db = new Client(buildDBConnectionObj())
+
+require('./auth')
 
 db.connect()
 
@@ -37,6 +45,10 @@ function buildDBConnectionObj() {
   }
 }
 
+function isLoggedIn(req, res, next) {
+  req.user ? next() : res.sendStatus(401)
+}
+
 app.use(express.json());
 app.use(cors());
 
@@ -55,6 +67,34 @@ app.get('/users', async (_, res, next) => {
   } catch (err) {
     next(err)
   }
+})
+
+app.get('/auth', (req, res) => {
+  res.send('<a href="/auth/google">Auth</a>')
+})
+
+app.get('/protected', isLoggedIn, (req, res) => {
+  console.log(req.user)
+  res.send(`hello, ${req.user.displayName}`)
+})
+
+app.get('/auth/google', passport.authenticate('google', { scope: ['email', 'profile'] }))
+
+app.get('/google/callback', 
+  passport.authenticate('google', {
+    successRedirect: '/protected',
+    failureRedirect: '/auth/failure',
+  })
+)
+
+app.get('/auth/failure', (req, res) => {
+  res.send('couldn\'t log ya in')
+})
+
+app.get('/logout', (req, res) => {
+  req.logout()
+  req.session.destroy()
+  res.send('Goodbye!')
 })
 
 app.listen(port, () => {
