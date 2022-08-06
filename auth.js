@@ -1,5 +1,6 @@
 const passport = require('passport')
 const GoogleStrategy = require('passport-google-oauth2').Strategy;
+const db = require('./db')
 
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
@@ -7,18 +8,46 @@ passport.use(new GoogleStrategy({
   callbackURL: "http://localhost:5000/google/callback",
   passReqToCallback: true
 },
-  function (request, accessToken, refreshToken, profile, done) {
-    // TODO: Create user in DB if it doesn't exist.
-    console.log(request)
-    console.log(accessToken)
-    console.log(refreshToken)
-    return done(null, profile);
+  async function (_, _, _, profile, done) {
+    try {
+      let res = await db.query(`
+        SELECT
+          id,
+          username,
+          first_name,
+          last_name
+        FROM users
+        WHERE username=$1
+      `, [profile.email])
+      if (res.rows[0]) {
+        return done(null, res.rows[0])
+      }
+      // No existing user found, create them.
+      res = await db.query(`
+        INSERT INTO users(username, first_name, last_name)
+        VALUES($1, $2, $3)
+        RETURNING id, username, first_name, last_name
+      `, [profile.email, profile.given_name, profile.family_name]) 
+      if (!res.rows[0]) {
+        throw new Error('expected a user to be created')
+      }
+      return done(null, res.rows[0])
+    } catch (e) {
+      done(e, null)
+    }
   }
 ));
 
-// What do these do?
+// Choose which parts of the profile we want to store into the session. 
+// In this case, just the email and name.
+// TODO: May want to store the user ID here as well.
 passport.serializeUser(function (user, done) {
-  done(null, user)
+  done(null, {
+    id: user.id,
+    username: user.username,
+    firstName: user.first_name,
+    lastName: user.last_name,
+  })
 })
 
 passport.deserializeUser(function (user, done) {

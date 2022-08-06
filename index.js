@@ -4,51 +4,25 @@ const passport = require('passport')
 const express = require("express");
 const session = require("express-session")
 const app = express();
-app.use(session({ secret: process.env.SESSION_SECRET }))
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  // TODO: Configure `secure` value based on env - should be true for deployed versions i.e. over HTTPS connections. 
+  // secure: true
+}))
 app.use(passport.initialize())
 app.use(passport.session())
 
 const cors = require("cors");
 const port = process.env.PORT || 4000;
 
-const { Client } = require('pg')
-const db = new Client(buildDBConnectionObj())
-
 require('./auth')
 
-db.connect()
+const db = require("./db")
 
-function buildDBConnectionObj() {
-  // Note: `DATABASE_URL` is the var name supplied by Heroku - do not change.
-  let db_url = process.env.DATABASE_URL
-  let ssl = false
-
-  if (!db_url) {
-    const db_host = process.env.POSTGRES_HOST || 'localhost'
-    const db_port = process.env.POSTGRES_PORT || 5432
-    const db_name = process.env.POSTGRES_DB_NAME || 'exercise-app'
-    const db_user = process.env.POSTGRES_USER || 'postgres'
-    const db_pass = process.env.POSTGRES_PASSWORD || 'postgres'
-
-    db_url = `postgres://${db_user}:${db_pass}@${db_host}:${db_port}/${db_name}`
-  }
-
-  if (process.env.POSTGRES_REQUIRE_SSL) {
-    ssl = {
-      rejectUnauthorized: Boolean(process.env.POSTGRES_REJECT_UNAUTHORIZED),
-    }
-  }
-
-  return {
-    connectionString: db_url,
-    ssl,
-  }
-}
 
 function isLoggedIn(req, res, next) {
-  console.log(`---ASDFADSF`)
-  console.log(req)
-  console.log(`---ASDFADSF`)
   req.user ? next() : res.sendStatus(401)
 }
 
@@ -75,16 +49,13 @@ app.get('/users', async (_, res, next) => {
   }
 })
 
-// Example of a protected route.
-app.get('/protected', isLoggedIn, (req, res) => {
-  console.log(req)
-  res.send(`hello, ${req.user.displayName}`)
+app.get('/current-user', isLoggedIn, (req, res) => {
+  res.json(req.user)
 })
 
-// Example of a protected route (post).
-app.post('/protected', isLoggedIn, (req, res) => {
-  console.log(req)
-  res.send(`hello, ${req.user.displayName}`)
+// Example of a protected route.
+app.get('/protected', isLoggedIn, (req, res) => {
+  res.send(`Hello, ${req.user.firstName} ${req.user.lastName}`)
 })
 
 app.get('/auth/google', passport.authenticate('google', { scope: ['email', 'profile'] }))
@@ -94,7 +65,7 @@ app.get('/auth/failure', (req, res) => {
 
 app.get('/google/callback', 
   passport.authenticate('google', {
-    successRedirect: '/protected', //process.env.FRONTEND_ORIGIN,
+    successRedirect: process.env.FRONTEND_ORIGIN,
     failureRedirect: '/auth/failure',
   })
 )
