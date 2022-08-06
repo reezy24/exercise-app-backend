@@ -19,8 +19,7 @@ const port = process.env.PORT || 4000;
 
 require('./auth')
 
-const db = require("./db")
-
+const db = require("./database/connect")
 
 function isLoggedIn(req, res, next) {
   req.user ? next() : res.sendStatus(401)
