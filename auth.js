@@ -26,8 +26,7 @@ passport.use(new GoogleStrategy({
   }
 ));
 
-// Choose which parts of the profile we want to store into the session. 
-// In this case, just the email and name.
+// Choose which parts of the user we want to store into the session. 
 passport.serializeUser(function (user, done) {
   done(null, {
     id: user.id,
