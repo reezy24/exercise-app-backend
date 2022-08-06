@@ -46,11 +46,17 @@ function buildDBConnectionObj() {
 }
 
 function isLoggedIn(req, res, next) {
+  console.log(`---ASDFADSF`)
+  console.log(req)
+  console.log(`---ASDFADSF`)
   req.user ? next() : res.sendStatus(401)
 }
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:3000'],
+  credentials: true,
+}));
 
 app.get("/ping", (_, res) => {
   res.send("pongg");
@@ -69,27 +75,29 @@ app.get('/users', async (_, res, next) => {
   }
 })
 
-app.get('/auth', (req, res) => {
-  res.send('<a href="/auth/google">Auth</a>')
+// Example of a protected route.
+app.get('/protected', isLoggedIn, (req, res) => {
+  console.log(req)
+  res.send(`hello, ${req.user.displayName}`)
 })
 
-app.get('/protected', isLoggedIn, (req, res) => {
-  console.log(req.user)
+// Example of a protected route (post).
+app.post('/protected', isLoggedIn, (req, res) => {
+  console.log(req)
   res.send(`hello, ${req.user.displayName}`)
 })
 
 app.get('/auth/google', passport.authenticate('google', { scope: ['email', 'profile'] }))
+app.get('/auth/failure', (req, res) => {
+  res.send(`<div>Couldn't log you in. <a href="${process.env.FRONTEND_ORIGIN}">Back to home</a></div>`)
+})
 
 app.get('/google/callback', 
   passport.authenticate('google', {
-    successRedirect: '/protected',
+    successRedirect: '/protected', //process.env.FRONTEND_ORIGIN,
     failureRedirect: '/auth/failure',
   })
 )
-
-app.get('/auth/failure', (req, res) => {
-  res.send('couldn\'t log ya in')
-})
 
 app.get('/logout', (req, res) => {
   req.logout()
