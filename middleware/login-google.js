@@ -1,13 +1,13 @@
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth2").Strategy;
-const { findUserByUsername, createUser } = require("./database/queries");
+const { findUserByUsername, createUser } = require("../database/queries");
 
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://localhost:5000/google/callback",
+      callbackURL: `${process.env.THIS_ORIGIN}/auth/google/callback`,
       passReqToCallback: true,
     },
     async function (_, _, _, profile, done) {

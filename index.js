@@ -17,8 +17,6 @@ app.use(passport.session())
 const cors = require("cors");
 const port = process.env.PORT || 4000;
 
-require('./auth')
-
 const db = require("./database/connect")
 
 function isLoggedIn(req, res, next) {
@@ -31,13 +29,8 @@ app.use(cors({
   credentials: true,
 }));
 
-app.get("/ping", (_, res) => {
-  res.send("pongg");
-});
-
-app.post("/echo", (req, res) => {
-  res.send(req.body);
-});
+// Sub routes.
+app.use('/auth', require('./routes/auth'))
 
 app.get('/users', async (_, res, next) => {
   try {
@@ -57,23 +50,6 @@ app.get('/protected', isLoggedIn, (req, res) => {
   res.send(`Hello, ${req.user.firstName} ${req.user.lastName}`)
 })
 
-app.get('/auth/google', passport.authenticate('google', { scope: ['email', 'profile'] }))
-app.get('/auth/failure', (req, res) => {
-  res.send(`<div>Couldn't log you in. <a href="${process.env.FRONTEND_ORIGIN}">Back to home</a></div>`)
-})
-
-app.get('/google/callback', 
-  passport.authenticate('google', {
-    successRedirect: process.env.FRONTEND_ORIGIN,
-    failureRedirect: '/auth/failure',
-  })
-)
-
-app.get('/logout', (req, res) => {
-  req.logout()
-  req.session.destroy()
-  res.send('Goodbye!')
-})
 
 app.listen(port, () => {
   console.log(`listening on port ${port}`);
