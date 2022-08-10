@@ -25,9 +25,10 @@ app.use(cors({
   credentials: true,
 }));
 
-const isLoggedIn = require('./middleware/isLoggedIn')
+const isLoggedIn = require('./middleware/isLoggedIn');
 
 // Sub routes.
+app.use('/', require("./routes/example"))
 app.use('/auth', require('./routes/auth'))
 
 app.get('/users', async (_, res, next) => {
@@ -42,12 +43,6 @@ app.get('/users', async (_, res, next) => {
 app.get('/current-user', isLoggedIn, (req, res) => {
   res.json(req.user)
 })
-
-// Example of a protected route.
-app.get('/protected', isLoggedIn, (req, res) => {
-  res.send(`Hello, ${req.user.firstName} ${req.user.lastName}`)
-})
-
 
 app.listen(port, () => {
   console.log(`listening on port ${port}`);
