@@ -19,15 +19,13 @@ const port = process.env.PORT || 4000;
 
 const db = require("./database/connect")
 
-function isLoggedIn(req, res, next) {
-  req.user ? next() : res.sendStatus(401)
-}
-
 app.use(express.json());
 app.use(cors({
   origin: ['http://localhost:3000'],
   credentials: true,
 }));
+
+const isLoggedIn = require('./middleware/isLoggedIn')
 
 // Sub routes.
 app.use('/auth', require('./routes/auth'))
