@@ -62,10 +62,20 @@ async function listExercises(routineId) {
   return res.rows
 }
 
+async function getExercise(id) {
+  const res = await db.query(`
+    SELECT id, routine_id, name, amount, unit, "order", created_at
+    FROM exercises
+    WHERE id=$1
+  `, [id])
+  return res.rows[0]
+}
+
 module.exports = {
   findUserByUsername,
   createUser,
   createRoutine,
   createExercise,
   listExercises,
+  getExercise,
 }

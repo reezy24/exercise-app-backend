@@ -1,5 +1,5 @@
 const express = require('express')
-const { createExercise, listExercises } = require('../database/queries')
+const { createExercise, listExercises, getExercise } = require('../database/queries')
 const exerciseRouter = express.Router()
 const isLoggedIn = require('../middleware/isLoggedIn')
 
@@ -50,6 +50,26 @@ exerciseRouter.post('/list', isLoggedIn, async (req, res) => {
   } catch (e) {
     console.error(e)
     res.status(500).send('failed to fetch exercises')
+  }
+})
+
+exerciseRouter.post('/get', async (req, res) => {
+  // Validate.
+  const { id } = req.body
+  if (!id) {
+    res.status(400).send('id is required')
+  }
+  // Fetch record.
+  try {
+    const ex = await getExercise(id)
+    if (!ex) {
+      res.status(404).send('exercise not found')
+      return
+    }
+    res.send(ex)
+  } catch (e) {
+    console.error(e)
+    res.status(500).send('failed to fetch exercise')
   }
 })
 
