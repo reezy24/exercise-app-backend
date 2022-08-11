@@ -4,8 +4,7 @@ const exerciseRouter = express.Router()
 const isLoggedIn = require('../middleware/isLoggedIn')
 
 // Create a new exercise.
-exerciseRouter.post('/create', async (req, res) => {
-  console.log(req.body)
+exerciseRouter.post('/create', isLoggedIn, async (req, res) => {
   // Validate.
   let { routineId, name, amount, unit, order } = req.body
   if (!routineId) {
@@ -23,6 +22,7 @@ exerciseRouter.post('/create', async (req, res) => {
   if (!unit) {
     unit = 'reps'
   }
+  // Create record.
   try {
     const ex = await createExercise(routineId, name, amount, unit, order)
     res.send(ex)
