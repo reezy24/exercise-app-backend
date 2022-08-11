@@ -1,5 +1,5 @@
 const express = require('express')
-const { createExercise } = require('../database/queries')
+const { createExercise, listExercises } = require('../database/queries')
 const exerciseRouter = express.Router()
 const isLoggedIn = require('../middleware/isLoggedIn')
 
@@ -29,6 +29,27 @@ exerciseRouter.post('/create', isLoggedIn, async (req, res) => {
   } catch (e) {
     console.error(e)
     res.status(500).send('failed to create exercise')
+  }
+})
+
+// List exercises by their routine. 
+exerciseRouter.post('/list', isLoggedIn, async (req, res) => {
+  // Validate.
+  const { routineId } = req.body
+  if (!routineId) {
+    res.status(400).send('routineId is required')
+  }
+  // Fetch records.
+  try {
+    const exercises = await listExercises(routineId)
+    if (exercises.length <= 0) {
+      res.status(404).send('no exercises found')
+      return
+    }
+    res.send(exercises)
+  } catch (e) {
+    console.error(e)
+    res.status(500).send('failed to fetch exercises')
   }
 })
 

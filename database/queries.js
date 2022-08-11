@@ -48,9 +48,18 @@ async function createExercise(routineId, name, amount, unit, order) {
     RETURNING id, routine_id, name, amount, unit, "order", created_at
   `, [routineId, name, amount, unit, order])
   if (!res.rows[0]) {
-    throw new Error('expected a routine to be created')
+    throw new Error('expected a exercise to be created')
   }
   return res.rows[0]
+}
+
+async function listExercises(routineId) {
+  const res = await db.query(`
+    SELECT id, routine_id, name, amount, unit, "order", created_at
+    FROM exercises
+    WHERE routine_id=$1
+  `, [routineId])
+  return res.rows
 }
 
 module.exports = {
@@ -58,4 +67,5 @@ module.exports = {
   createUser,
   createRoutine,
   createExercise,
+  listExercises,
 }
