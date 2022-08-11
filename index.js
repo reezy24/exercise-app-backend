@@ -26,6 +26,7 @@ app.use(cors({
 app.use('/', require("./routes/example"))
 app.use('/auth', require('./routes/auth'))
 app.use('/users', require('./routes/users'))
+app.use('/exercises', require('./routes/exercises'))
 
 app.listen(port, () => {
   console.log(`listening on port ${port}`);

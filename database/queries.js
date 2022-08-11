@@ -41,12 +41,12 @@ async function createRoutine(ownerUserId, name) {
 }
 
 // Exercises.
-async function createExercise(routineId, name, amount, unit) {
+async function createExercise(routineId, name, amount, unit, order) {
   const res = await db.query(`
-    INSERT INTO exercises (routine_id, name, amount, unit)
-    VALUES ($1, $2, $3, $4)
-    RETURNING id, routine_id, name, amount, unit, created_at
-  `, [ownerUserId, name])
+    INSERT INTO exercises (routine_id, name, amount, unit, "order")
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING id, routine_id, name, amount, unit, "order", created_at
+  `, [routineId, name, amount, unit, order])
   if (!res.rows[0]) {
     throw new Error('expected a routine to be created')
   }
