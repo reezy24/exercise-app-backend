@@ -71,6 +71,45 @@ async function getExercise(id) {
   return res.rows[0]
 }
 
+async function updateExercise(id, values = { name, amount, unit, order }) {
+  const keys = Object.keys(values)
+  const query = buildUpdateQueryBase('exercises', keys)
+  console.log(query)
+  const res = await db.query(`
+    ${buildUpdateQueryBase('exercises', [name, amount, unit, order])}
+    WHERE id=$5
+    RETURNING id, routine_id, name, amount, unit, "order", created_at
+  `, [name, amount, unit, order, id])
+  if (!res.rows[0]) {
+    throw new Error('expected an exercise to be updated')
+  }
+  return res.rows[0]
+}
+
+function buildUpdateQueryBase(tableName, keys) {
+  let query = `UPDATE ${tableName} SET`
+  const clauses = []
+  console.log(keys.length)
+  for (let i = 0; i < keys.length; i++) {
+    console.log('loop')
+    let key = keys[i]
+    if (!key) {
+      console.log('continue')
+      continue
+    }
+    // Escape keywords.
+    if (key === 'order') {
+      console.log('order')
+      key = '"order"'
+    }
+    console.log(`${key}=$${i+1}`)
+    clauses.push(`${key}=$${i+1}`)
+  }
+  console.log(keys)
+  console.log(clauses)
+  return `${query} ${clauses.join(', ')}`
+}
+
 module.exports = {
   findUserByUsername,
   createUser,
@@ -78,4 +117,5 @@ module.exports = {
   createExercise,
   listExercises,
   getExercise,
+  updateExercise,
 }

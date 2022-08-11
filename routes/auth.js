@@ -9,7 +9,7 @@ authRouter.get('/google', passport.authenticate('google', { scope: ['email', 'pr
 
 // Page to redirect to if login fails.
 authRouter.get('/failure', (req, res) => {
-  res.send(`<div>Couldn't log you in. <a href="${process.env.FRONTEND_ORIGIN}">Back to home</a></div>`)
+  return res.send(`<div>Couldn't log you in. <a href="${process.env.FRONTEND_ORIGIN}">Back to home</a></div>`)
 })
 
 // Callback when authenticating through Google.
@@ -24,7 +24,7 @@ authRouter.get('/google/callback',
 authRouter.get('/logout', (req, res) => {
   req.logout()
   req.session.destroy()
-  res.send('Goodbye!')
+  return res.send('Goodbye!')
 })
 
 module.exports = authRouter

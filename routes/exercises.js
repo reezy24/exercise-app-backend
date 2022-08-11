@@ -1,5 +1,5 @@
 const express = require('express')
-const { createExercise, listExercises, getExercise } = require('../database/queries')
+const { createExercise, listExercises, getExercise, updateExercise } = require('../database/queries')
 const exerciseRouter = express.Router()
 const isLoggedIn = require('../middleware/isLoggedIn')
 
@@ -8,16 +8,16 @@ exerciseRouter.post('/create', isLoggedIn, async (req, res) => {
   // Validate.
   let { routineId, name, amount, unit, order } = req.body
   if (!routineId) {
-    res.status(400).send('routineId is required')
+    return res.status(400).send('routineId is required')
   }
   if (!name) {
-    res.status(400).send('name is required')
+    return res.status(400).send('name is required')
   }
   if (!amount) {
-    res.status(400).send('amount is required')
+    return res.status(400).send('amount is required')
   }
   if (!order) {
-    res.status(400).send('order is required')
+    return res.status(400).send('order is required')
   }
   if (!unit) {
     unit = 'reps'
@@ -25,10 +25,10 @@ exerciseRouter.post('/create', isLoggedIn, async (req, res) => {
   // Create record.
   try {
     const ex = await createExercise(routineId, name, amount, unit, order)
-    res.send(ex)
+    return res.send(ex)
   } catch (e) {
     console.error(e)
-    res.status(500).send('failed to create exercise')
+    return res.status(500).send('failed to create exercise')
   }
 })
 
@@ -37,19 +37,18 @@ exerciseRouter.post('/list', isLoggedIn, async (req, res) => {
   // Validate.
   const { routineId } = req.body
   if (!routineId) {
-    res.status(400).send('routineId is required')
+    return res.status(400).send('routineId is required')
   }
   // Fetch records.
   try {
     const exercises = await listExercises(routineId)
     if (exercises.length <= 0) {
-      res.status(404).send('no exercises found')
-      return
+      return res.status(404).send('no exercises found')
     }
-    res.send(exercises)
+    return res.send(exercises)
   } catch (e) {
     console.error(e)
-    res.status(500).send('failed to fetch exercises')
+    return res.status(500).send('failed to fetch exercises')
   }
 })
 
@@ -57,19 +56,38 @@ exerciseRouter.post('/get', async (req, res) => {
   // Validate.
   const { id } = req.body
   if (!id) {
-    res.status(400).send('id is required')
+    return res.status(400).send('id is required')
   }
   // Fetch record.
   try {
     const ex = await getExercise(id)
     if (!ex) {
-      res.status(404).send('exercise not found')
+      return res.status(404).send('exercise not found')
       return
     }
-    res.send(ex)
+    return res.send(ex)
   } catch (e) {
     console.error(e)
-    res.status(500).send('failed to fetch exercise')
+    return res.status(500).send('failed to fetch exercise')
+  }
+})
+
+exerciseRouter.post('/update', async (req, res) => {
+  // Validate.
+  const { id, name, amount, unit, order } = req.body
+  if (!id) {
+    return res.status(400).send('id is required')
+  }
+  if (!name && !amount && !unit && !order) {
+    return res.status(400).send('require at least one of name, amount, unit or order to be specified')
+  }
+  // Update record.
+  try {
+    const ex = await updateExercise(id, { name, amount, unit, order })
+    return res.send(ex)
+  } catch (e) {
+    console.error(e)
+    return res.status(500).send('failed to update exercise')
   }
 })
 
