@@ -40,8 +40,22 @@ async function createRoutine(ownerUserId, name) {
   return res.rows[0]
 }
 
+// Exercises.
+async function createExercise(routineId, name, amount, unit) {
+  const res = await db.query(`
+    INSERT INTO exercises (routine_id, name, amount, unit)
+    VALUES ($1, $2, $3, $4)
+    RETURNING id, routine_id, name, amount, unit, created_at
+  `, [ownerUserId, name])
+  if (!res.rows[0]) {
+    throw new Error('expected a routine to be created')
+  }
+  return res.rows[0]
+}
+
 module.exports = {
   findUserByUsername,
   createUser,
   createRoutine,
+  createExercise,
 }
