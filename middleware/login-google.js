@@ -1,13 +1,17 @@
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth2").Strategy;
-const { findUserByUsername, createUser } = require("./database/queries");
+const {
+  findUserByUsername,
+  createUser,
+  createRoutine,
+} = require("../database/queries");
 
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://localhost:5000/google/callback",
+      callbackURL: `${process.env.THIS_ORIGIN}/auth/google/callback`,
       passReqToCallback: true,
     },
     async function (_, _, _, profile, done) {
@@ -19,13 +23,14 @@ passport.use(
         // No existing user found, create them.
         return done(
           null,
-          await createUser(
+          await handleSignup(
             profile.email,
             profile.given_name,
             profile.family_name
           )
         );
       } catch (e) {
+        console.error(e)
         done(e, null);
       }
     }
@@ -45,3 +50,10 @@ passport.serializeUser(function (user, done) {
 passport.deserializeUser(function (user, done) {
   done(null, user);
 });
+
+// Create the user and also a default routine for them to use.
+async function handleSignup(email, firstName, lastName) {
+  const user = await createUser(email, firstName, lastName)
+  await createRoutine(user.id, `${firstName} ${lastName}'s Routine`)
+  return user
+}
