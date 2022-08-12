@@ -71,42 +71,47 @@ async function getExercise(id) {
   return res.rows[0]
 }
 
-async function updateExercise(id, values = { name, amount, unit, order }) {
-  const keys = Object.keys(values)
-  const query = buildUpdateQueryBase('exercises', keys)
-  console.log(query)
+// `updates` should be { column1Name: newValue1, column2Name: newValue2... }
+// Also, I hate my life. Why is it so hard to write an update query?
+async function updateExercise(id, updates) {
+  const validUpdates = Object.keys(updates).reduce((acc, columnName) => {
+    const newValue = updates[columnName]
+    if (!newValue) {
+      return acc
+    }
+    return {...acc, [columnName]: newValue}
+  }, {})
+  const newValues = Object.values(validUpdates)
   const res = await db.query(`
-    ${buildUpdateQueryBase('exercises', [name, amount, unit, order])}
-    WHERE id=$5
+    ${buildUpdateQueryBase('exercises', validUpdates)}
+    WHERE id=$${newValues.length + 1}
     RETURNING id, routine_id, name, amount, unit, "order", created_at
-  `, [name, amount, unit, order, id])
+  `, [...newValues, id])
   if (!res.rows[0]) {
     throw new Error('expected an exercise to be updated')
   }
   return res.rows[0]
 }
 
-function buildUpdateQueryBase(tableName, keys) {
-  let query = `UPDATE ${tableName} SET`
+// This function spits out something like...
+// `UPDATE exercises SET name=$1, amount=$2`
+// so that WHERE clauses can be appended after.
+function buildUpdateQueryBase(tableName, updates) {
   const clauses = []
-  console.log(keys.length)
-  for (let i = 0; i < keys.length; i++) {
-    console.log('loop')
-    let key = keys[i]
-    if (!key) {
-      console.log('continue')
+  let query = `UPDATE ${tableName} SET`
+  let index = 0
+  for (let columnName in updates) {
+    let newValue = updates[columnName]
+    if (!newValue) {
       continue
     }
+    index++
     // Escape keywords.
-    if (key === 'order') {
-      console.log('order')
-      key = '"order"'
+    if (columnName === 'order') {
+      columnName = '"order"'
     }
-    console.log(`${key}=$${i+1}`)
-    clauses.push(`${key}=$${i+1}`)
+    clauses.push(`${columnName}=$${index}`)
   }
-  console.log(keys)
-  console.log(clauses)
   return `${query} ${clauses.join(', ')}`
 }
 
