@@ -28,11 +28,19 @@ https://exercise-app-backend-420.herokuapp.com
 7. Right click 'Databases' in the browser and 'refresh'. You should now see `exercise-app` in the list.
 
 #### Connect BE to DB
-1. Now add your password to the `.env` with `POSTGRES_PASSWORD="insert-your-password-here"`.
+1. Ensure your `.env` contains all the following:
+   * `PORT=5000`.
+   * `GOOGLE_CLIENT_ID="get-from-discord-server"`.
+   * `GOOGLE_CLIENT_SECRET="get-from-discord-server"`.
+   * `SESSION_SECRET="get-from-discord-server"`.
+   * `FRONTEND_ORIGIN="http://localhost:3000"`.
+   * `THIS_ORIGIN="http://localhost:5000"`.
+   * `POSTGRES_PASSWORD="insert-your-password-here"`.
 2. Start the BE server `npm start` and it should connect.
 3. Run the queries inside `/database/migrations` in ascending order.
     * Note: You'll likely have to create the database (very first migration file) and then reconnect to that database before running the other queries.
-. OPTIONAL: Insert a test user using the `/database/helpers/insert-user.sql` query. When the app is running (instructions below), you can verify the DB connection by accessing `localhost:5000/users` and your test user should come back as a JSON object. 
+    * in pgAdmin4, you can select the new DB from the dropdown list after selecting the Query Tool.
+4. OPTIONAL: Insert a test user using the `/database/helpers/insert-user.sql` query. When the app is running (instructions below), you can verify the DB connection by accessing `localhost:5000/users` and your test user should come back as a JSON object. 
 
 
 ### App Setup
