@@ -1,5 +1,5 @@
 const express = require('express')
-const { createExercise, listExercises, getExercise, updateExercise } = require('../database/queries')
+const { createExercise, listExercises, getExercise, updateExercise, deleteExercise } = require('../database/queries')
 const exerciseRouter = express.Router()
 const isLoggedIn = require('../middleware/isLoggedIn')
 
@@ -88,6 +88,25 @@ exerciseRouter.post('/update', async (req, res) => {
   } catch (e) {
     console.error(e)
     return res.status(500).send('failed to update exercise')
+  }
+})
+
+exerciseRouter.post('/delete', async (req, res) => {
+  // Validate.
+  const {id} = req.body
+  if (!id) {
+    return res.status(400).send('id is required')
+  }
+  // Delete record.
+  try {
+    const rowCount = await deleteExercise(id)
+    if (rowCount === 0) {
+      return res.status(400).send('exercise not found')
+    }
+    return res.status(200).end()
+  } catch (e) {
+    console.error(e)
+    return res.status(500).send('failed to delete exercise')
   }
 })
 

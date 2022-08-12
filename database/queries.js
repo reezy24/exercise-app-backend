@@ -93,6 +93,11 @@ async function updateExercise(id, updates) {
   return res.rows[0]
 }
 
+async function deleteExercise(id) {
+  const res = await db.query('DELETE FROM exercises WHERE id=$1', [id])
+  return res.rowCount
+}
+
 // This function spits out something like...
 // `UPDATE exercises SET name=$1, amount=$2`
 // so that WHERE clauses can be appended after.
@@ -123,4 +128,5 @@ module.exports = {
   listExercises,
   getExercise,
   updateExercise,
+  deleteExercise,
 }
