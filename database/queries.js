@@ -165,6 +165,11 @@ async function updateEntry(id, amount) {
   return res.rows[0]
 }
 
+async function deleteEntry(id) {
+  const res = await db.query('DELETE FROM entries WHERE id=$1', [id])
+  return res.rowCount
+}
+
 module.exports = {
   findUserByUsername,
   createUser,
@@ -177,4 +182,5 @@ module.exports = {
   createEntry,
   listEntries,
   updateEntry,
+  deleteEntry,
 }

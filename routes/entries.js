@@ -1,5 +1,5 @@
 const express = require('express')
-const { createEntry, listEntries, updateEntry } = require('../database/queries')
+const { createEntry, listEntries, updateEntry, deleteEntry } = require('../database/queries')
 const entryRouter = express.Router()
 const isLoggedIn = require('../middleware/isLoggedIn')
 
@@ -62,6 +62,25 @@ entryRouter.post('/update', async (req, res) => {
   } catch (e) {
     console.error(e)
     return res.status(500).send('failed to update entry')
+  }
+})
+
+entryRouter.post('/delete', async (req, res) => {
+  // Validate.
+  const {id} = req.body
+  if (!id) {
+    return res.status(400).send('id is required')
+  }
+  // Delete record.
+  try {
+    const rowCount = await deleteEntry(id)
+    if (rowCount === 0) {
+      return res.status(400).send('entry not found')
+    }
+    return res.status(200).end()
+  } catch (e) {
+    console.error(e)
+    return res.status(500).send('failed to delete entry')
   }
 })
 
