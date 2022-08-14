@@ -52,7 +52,7 @@ exerciseRouter.post('/list', isLoggedIn, async (req, res) => {
   }
 })
 
-exerciseRouter.post('/get', async (req, res) => {
+exerciseRouter.post('/get', isLoggedIn, async (req, res) => {
   // Validate.
   const { id } = req.body
   if (!id) {
@@ -72,7 +72,7 @@ exerciseRouter.post('/get', async (req, res) => {
   }
 })
 
-exerciseRouter.post('/update', async (req, res) => {
+exerciseRouter.post('/update', isLoggedIn, async (req, res) => {
   // Validate.
   const { id, name, amount, unit, order } = req.body
   if (!id) {
@@ -91,7 +91,7 @@ exerciseRouter.post('/update', async (req, res) => {
   }
 })
 
-exerciseRouter.post('/delete', async (req, res) => {
+exerciseRouter.post('/delete', isLoggedIn, async (req, res) => {
   // Validate.
   const {id} = req.body
   if (!id) {

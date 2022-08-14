@@ -1,4 +1,5 @@
 const db = require('./connect')
+// TODO: Seperate this file by resource.
 
 // Users.
 async function findUserByUsername(username) {
@@ -120,6 +121,27 @@ function buildUpdateQueryBase(tableName, updates) {
   return `${query} ${clauses.join(', ')}`
 }
 
+// Entries.
+async function createEntry(exerciseId, amount, completedAt) {
+  let columnNames = 'exercise_id, amount'
+  let values = '$1, $2'
+  let args = [exerciseId, amount]
+  if (completedAt) {
+    columnNames += ', completed_at'
+    values += ', $3'
+    args.push(completedAt)
+  }
+  const res = await db.query(`
+    INSERT INTO entries (${columnNames})
+    VALUES (${values})
+    RETURNING id, exercise_id, amount, created_at, completed_at
+  `, args)
+  if (!res.rows[0]) {
+    throw new Error('expected an entry to be created')
+  }
+  return res.rows[0]
+}
+
 module.exports = {
   findUserByUsername,
   createUser,
@@ -129,4 +151,5 @@ module.exports = {
   getExercise,
   updateExercise,
   deleteExercise,
+  createEntry,
 }
