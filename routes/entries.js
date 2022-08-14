@@ -1,5 +1,5 @@
 const express = require('express')
-const { createEntry } = require('../database/queries')
+const { createEntry, listEntries } = require('../database/queries')
 const entryRouter = express.Router()
 const isLoggedIn = require('../middleware/isLoggedIn')
 
@@ -7,7 +7,6 @@ const isLoggedIn = require('../middleware/isLoggedIn')
 
 // Create a new entry.
 entryRouter.post('/create', async (req, res) => {
-console.log('asdf')
   // Validate.
   let { exerciseId, amount } = req.body
   if (!exerciseId) {
@@ -19,11 +18,31 @@ console.log('asdf')
   // TODO: Support `completed_at` - date likely needs to be parsed to fit Postgres type.
   // Create record.
   try {
-    const ex = await createEntry(exerciseId, amount)
-    return res.send(ex)
+    const entry = await createEntry(exerciseId, amount)
+    return res.send(entry)
   } catch (e) {
     console.error(e)
     return res.status(500).send('failed to create entry')
+  }
+})
+
+// List exercises by their routine. 
+entryRouter.post('/list', async (req, res) => {
+  // Validate.
+  const { exerciseId } = req.body
+  if (!exerciseId) {
+    return res.status(400).send('exerciseId is required')
+  }
+  // Fetch records.
+  try {
+    const entries = await listEntries(exerciseId)
+    if (entries.length <= 0) {
+      return res.status(404).send('no entries found')
+    }
+    return res.send(entries)
+  } catch (e) {
+    console.error(e)
+    return res.status(500).send('failed to fetch entries')
   }
 })
 

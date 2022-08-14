@@ -142,6 +142,15 @@ async function createEntry(exerciseId, amount, completedAt) {
   return res.rows[0]
 }
 
+async function listEntries(exerciseId) {
+  const res = await db.query(`
+    SELECT id, exercise_id, amount, created_at, completed_at
+    FROM entries
+    WHERE exercise_id=$1
+  `, [exerciseId])
+  return res.rows
+}
+
 module.exports = {
   findUserByUsername,
   createUser,
@@ -152,4 +161,5 @@ module.exports = {
   updateExercise,
   deleteExercise,
   createEntry,
+  listEntries,
 }
