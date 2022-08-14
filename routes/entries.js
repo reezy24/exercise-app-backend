@@ -6,7 +6,7 @@ const isLoggedIn = require('../middleware/isLoggedIn')
 // REMINDER: use isLoggedIn when done testing.
 
 // Create a new entry.
-entryRouter.post('/create', async (req, res) => {
+entryRouter.post('/create', isLoggedIn, async (req, res) => {
   // Validate.
   let { exerciseId, amount } = req.body
   if (!exerciseId) {
@@ -27,7 +27,7 @@ entryRouter.post('/create', async (req, res) => {
 })
 
 // List exercises by their routine. 
-entryRouter.post('/list', async (req, res) => {
+entryRouter.post('/list', isLoggedIn, async (req, res) => {
   // Validate.
   const { exerciseId } = req.body
   if (!exerciseId) {
@@ -46,7 +46,7 @@ entryRouter.post('/list', async (req, res) => {
   }
 })
 
-entryRouter.post('/update', async (req, res) => {
+entryRouter.post('/update', isLoggedIn, async (req, res) => {
   // Validate.
   const { id, amount } = req.body
   if (!id) {
@@ -65,7 +65,7 @@ entryRouter.post('/update', async (req, res) => {
   }
 })
 
-entryRouter.post('/delete', async (req, res) => {
+entryRouter.post('/delete', isLoggedIn, async (req, res) => {
   // Validate.
   const {id} = req.body
   if (!id) {
