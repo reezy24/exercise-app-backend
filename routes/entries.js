@@ -3,8 +3,6 @@ const { createEntry, listEntries, updateEntry, deleteEntry } = require('../datab
 const entryRouter = express.Router()
 const isLoggedIn = require('../middleware/isLoggedIn')
 
-// REMINDER: use isLoggedIn when done testing.
-
 // Create a new entry.
 entryRouter.post('/create', isLoggedIn, async (req, res) => {
   // Validate.
