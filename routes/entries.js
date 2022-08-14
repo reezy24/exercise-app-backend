@@ -1,5 +1,5 @@
 const express = require('express')
-const { createEntry, listEntries } = require('../database/queries')
+const { createEntry, listEntries, updateEntry } = require('../database/queries')
 const entryRouter = express.Router()
 const isLoggedIn = require('../middleware/isLoggedIn')
 
@@ -43,6 +43,25 @@ entryRouter.post('/list', async (req, res) => {
   } catch (e) {
     console.error(e)
     return res.status(500).send('failed to fetch entries')
+  }
+})
+
+entryRouter.post('/update', async (req, res) => {
+  // Validate.
+  const { id, amount } = req.body
+  if (!id) {
+    return res.status(400).send('id is required')
+  }
+  if (!amount) {
+    return res.status(400).send('amount is required')
+  }
+  // Update record.
+  try {
+    const entry = await updateEntry(id, amount)
+    return res.send(entry)
+  } catch (e) {
+    console.error(e)
+    return res.status(500).send('failed to update entry')
   }
 })
 

@@ -151,6 +151,20 @@ async function listEntries(exerciseId) {
   return res.rows
 }
 
+async function updateEntry(id, amount) {
+  // TODO: Support `created_at`.
+  const res = await db.query(`
+    UPDATE entries
+    SET amount=$2
+    WHERE id=$1
+    RETURNING id, exercise_id, amount, created_at, completed_at
+  `, [id, amount])
+  if (!res.rows[0]) {
+    throw new Error('expected an entry to be updated')
+  }
+  return res.rows[0]
+}
+
 module.exports = {
   findUserByUsername,
   createUser,
@@ -162,4 +176,5 @@ module.exports = {
   deleteExercise,
   createEntry,
   listEntries,
+  updateEntry,
 }
