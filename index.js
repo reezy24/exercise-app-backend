@@ -28,6 +28,7 @@ app.use('/auth', require('./routes/auth'))
 app.use('/users', require('./routes/users'))
 app.use('/exercises', require('./routes/exercises'))
 app.use('/entries', require('./routes/entries'))
+app.use('/leaderboard', require('./routes/leaderboard'))
 
 app.listen(port, () => {
   console.log(`listening on port ${port}`);

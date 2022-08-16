@@ -1,21 +1,36 @@
 const express = require('express')
+const { getLeaderboardData, getExerciseCounts } = require('../database/queries')
 const leaderboardRouter = express.Router()
 
-// TODO: Join query select cols from tbl 1, tbl2, tbl3 where id1=id2 and id2=id3 etcc...
-
-leaderboardRouter.get('/', (req, res) => {
-    // Get the Users
-    // Get their routine (they should only have one)    
-    // Get the exercises
-    // Get the entries for each exercise
-    // Need to filter by the date range
-    // Reduce to format:
-    const mock = [
-        {
-            name: 'Zachary Reyes',
-            percentage: 60
-        }
-    ]
+leaderboardRouter.get('/', async (req, res) => {
+  const exerciseCounts = await getExerciseCounts()
+  let leaderboardData = await getLeaderboardData()
+  // Append the exercise counts to the entries, as we need this to calculate the
+  // final percentages.
+  leaderboardData = leaderboardData.map((entry) => {
+    const totalExercises = exerciseCounts.find(({ user_id }) => entry.user_id == user_id).total_exercises 
+    return Object.assign(entry, { totalExercises })
+  })
+  // Calculate the percentages and strip the data we don't need.
+  const leaderboardPercentages = leaderboardData.reduce((acc, entry) => {
+    const exercisePercentage = calculateExercisePercentage(entry)
+    if (!acc[entry.user_id]) {
+      acc[entry.user_id] = {
+        userId: entry.user_id,
+        firstName: entry.first_name,
+        lastName: entry.last_name,
+        percentage: exercisePercentage,
+      }
+      return acc
+    }
+    acc[entry.user_id].percentage += exercisePercentage
+    return acc
+  }, {})
+  res.json(leaderboardPercentages)
 })
+
+function calculateExercisePercentage(entry) {
+  return (entry.entry_amount / entry.exercise_amount) / entry.totalExercises
+}
 
 module.exports = leaderboardRouter
