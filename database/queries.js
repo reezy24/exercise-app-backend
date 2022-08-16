@@ -172,7 +172,7 @@ async function deleteEntry(id) {
 
 async function getLeaderboardData(fromDate, toDate) {
   // TODO: Implement from / to
-  const res = await db.query(`
+  let { rows: leaderboardData } = await db.query(`
     SELECT
       u.id AS user_id,
       u.first_name,
@@ -189,7 +189,14 @@ async function getLeaderboardData(fromDate, toDate) {
       ON r.owner_user_id = u.id
     GROUP BY ex.id, u.id
   `)
-  return res.rows
+  const exerciseCounts = await getExerciseCounts()
+  // Append the exercise counts to the entries, as we need this to calculate the
+  // final percentages.
+  leaderboardData = leaderboardData.map((entry) => {
+    const totalExercises = exerciseCounts.find(({ user_id }) => entry.user_id == user_id).total_exercises 
+    return Object.assign(entry, { totalExercises })
+  })
+  return leaderboardData
 }
 
 async function getExerciseCounts() {

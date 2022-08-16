@@ -3,14 +3,7 @@ const { getLeaderboardData, getExerciseCounts } = require('../database/queries')
 const leaderboardRouter = express.Router()
 
 leaderboardRouter.get('/', async (req, res) => {
-  const exerciseCounts = await getExerciseCounts()
   let leaderboardData = await getLeaderboardData()
-  // Append the exercise counts to the entries, as we need this to calculate the
-  // final percentages.
-  leaderboardData = leaderboardData.map((entry) => {
-    const totalExercises = exerciseCounts.find(({ user_id }) => entry.user_id == user_id).total_exercises 
-    return Object.assign(entry, { totalExercises })
-  })
   // Calculate the percentages and strip the data we don't need.
   const leaderboardPercentages = leaderboardData.reduce((acc, entry) => {
     const exercisePercentage = calculateExercisePercentage(entry)
