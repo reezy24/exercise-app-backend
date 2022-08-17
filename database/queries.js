@@ -171,13 +171,12 @@ async function deleteEntry(id) {
 }
 
 async function getLeaderboardData(fromDate, toDate) {
-  // TODO: Implement from / to
   let { rows: leaderboardData } = await db.query(`
     SELECT
       u.id AS user_id,
       u.first_name,
       u.last_name,
-      sum(en.amount) AS entry_amount,
+      SUM(en.amount) AS entry_amount,
       ex.id AS exercise_id,
       ex.amount AS exercise_amount
     FROM entries AS en
@@ -187,8 +186,9 @@ async function getLeaderboardData(fromDate, toDate) {
       ON ex.routine_id = r.id
     INNER JOIN users AS u
       ON r.owner_user_id = u.id
+    WHERE en.completed_at BETWEEN $1 AND $2
     GROUP BY ex.id, u.id
-  `)
+  `, [fromDate, toDate])
   const exerciseCounts = await getExerciseCounts()
   // Append the exercise counts to the entries, as we need this to calculate the
   // final percentages.

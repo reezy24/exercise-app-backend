@@ -1,9 +1,23 @@
+const dayjs = require('dayjs')
 const express = require('express')
-const { getLeaderboardData, getExerciseCounts } = require('../database/queries')
+const { getLeaderboardData } = require('../database/queries')
 const leaderboardRouter = express.Router()
 
-leaderboardRouter.get('/', async (req, res) => {
-  let leaderboardData = await getLeaderboardData()
+leaderboardRouter.post('/', async (req, res) => {
+  let { day } = req.body
+  if (!day) {
+    return res.status(400).send('day is required')
+  }
+  day = new Date(day)
+  if (!isValidDate(day)) {
+    return res.status(400).send(`invalid date ${day}`)
+  }
+  // Get the start and end of the day, and pass those in as the time range.
+  const start = dayjs(day).startOf('day').toDate()
+  const end = dayjs(day).endOf('day').toDate()
+  console.log(start)
+  console.log(end)
+  let leaderboardData = await getLeaderboardData(start, end)
   // Calculate the percentages and strip the data we don't need.
   const leaderboardPercentages = leaderboardData.reduce((acc, entry) => {
     const exercisePercentage = calculateExercisePercentage(entry)
@@ -24,6 +38,11 @@ leaderboardRouter.get('/', async (req, res) => {
 
 function calculateExercisePercentage(entry) {
   return (entry.entry_amount / entry.exercise_amount) / entry.totalExercises
+}
+
+// https://stackoverflow.com/a/1353711
+function isValidDate(d) {
+  return d instanceof Date && !isNaN(d)
 }
 
 module.exports = leaderboardRouter
