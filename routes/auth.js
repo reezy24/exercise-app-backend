@@ -27,10 +27,11 @@ authRouter.get('/logout', (req, res) => {
       return next(err)
     }
     req.session.destroy()
-    res.redirect('/auth/logged-out')
+    res.end()
   })
 })
 
+// TODO: Delete this if no longer needed.
 authRouter.get('/logged-out', (req, res) => {
   return res.send(`
     <div>
