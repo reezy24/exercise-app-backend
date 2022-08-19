@@ -2,14 +2,20 @@ const db = require('./connect')
 // TODO: Seperate this file by resource.
 
 // Users.
+// NOTE: For this query, we return the routine ID as well which will be the only
+// routine that the user owns. This will need to change if/when we support multiple
+// routines.
 async function findUserByUsername(username) {
   const res = await db.query(`
     SELECT
-      id,
-      username,
-      first_name,
-      last_name
-    FROM users
+      u.id,
+      u.username,
+      u.first_name,
+      u.last_name,
+      r.id AS routine_id
+    FROM users AS u
+    INNER JOIN routines as r
+      ON r.owner_user_id=u.id
     WHERE username=$1
   `, [username])
   return res.rows[0]

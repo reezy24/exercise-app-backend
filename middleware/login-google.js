@@ -44,6 +44,7 @@ passport.serializeUser(function (user, done) {
     username: user.username,
     firstName: user.first_name,
     lastName: user.last_name,
+    routineId: user.routine_id,
   });
 });
 
@@ -54,6 +55,6 @@ passport.deserializeUser(function (user, done) {
 // Create the user and also a default routine for them to use.
 async function handleSignup(email, firstName, lastName) {
   const user = await createUser(email, firstName, lastName)
-  await createRoutine(user.id, `${firstName} ${lastName}'s Routine`)
-  return user
+  const routine = await createRoutine(user.id, `${firstName} ${lastName}'s Routine`)
+  return { ...user, routine_id: routine.id }
 }
