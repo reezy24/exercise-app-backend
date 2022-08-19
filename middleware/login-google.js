@@ -3,8 +3,10 @@ const GoogleStrategy = require("passport-google-oauth2").Strategy;
 const {
   findUserByUsername,
   createUser,
+} = require("../database/queries/users");
+const {
   createRoutine,
-} = require("../database/queries");
+} = require("../database/queries/routines");
 
 passport.use(
   new GoogleStrategy(

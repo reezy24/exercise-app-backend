@@ -1,5 +1,11 @@
 const express = require('express')
-const { createExercise, listExercises, getExercise, updateExercise, deleteExercise } = require('../database/queries')
+const {
+  createExercise,
+  listExercises,
+  getExercise,
+  updateExercise,
+  deleteExercise,
+} = require('../database/queries/exercises')
 const exerciseRouter = express.Router()
 const isLoggedIn = require('../middleware/isLoggedIn')
 
@@ -63,7 +69,6 @@ exerciseRouter.post('/get', isLoggedIn, async (req, res) => {
     const ex = await getExercise(id)
     if (!ex) {
       return res.status(404).send('exercise not found')
-      return
     }
     return res.send(ex)
   } catch (e) {

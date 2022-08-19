@@ -1,0 +1,49 @@
+const db = require('../connect')
+
+async function getLeaderboardData(fromDate, toDate) {
+  let { rows: leaderboardData } = await db.query(`
+    SELECT
+      u.id AS user_id,
+      u.first_name,
+      u.last_name,
+      SUM(en.amount) AS entry_amount,
+      ex.id AS exercise_id,
+      ex.amount AS exercise_amount
+    FROM entries AS en
+    INNER JOIN exercises AS ex
+      ON en.exercise_id = ex.id
+    INNER JOIN routines AS r 
+      ON ex.routine_id = r.id
+    INNER JOIN users AS u
+      ON r.owner_user_id = u.id
+    WHERE en.completed_at BETWEEN $1 AND $2
+    GROUP BY ex.id, u.id
+  `, [fromDate, toDate])
+  const exerciseCounts = await getExerciseCounts()
+  // Append the exercise counts to the entries, as we need this to calculate the
+  // final percentages.
+  leaderboardData = leaderboardData.map((entry) => {
+    const totalExercises = exerciseCounts.find(({ user_id }) => entry.user_id == user_id).total_exercises 
+    return Object.assign(entry, { totalExercises })
+  })
+  return leaderboardData
+}
+
+async function getExerciseCounts() {
+  const res = await db.query(`
+    SELECT
+      u.id AS user_id,
+      COUNT(e.id) AS total_exercises
+    FROM users AS u
+    INNER JOIN routines AS r
+      ON r.owner_user_id = u.id 
+    INNER join exercises AS e
+      ON e.routine_id = r.id
+    GROUP BY u.id
+  `)
+  return res.rows
+}
+
+module.exports = {
+    getLeaderboardData,
+}

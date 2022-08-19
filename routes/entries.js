@@ -1,5 +1,10 @@
 const express = require('express')
-const { createEntry, listEntries, updateEntry, deleteEntry } = require('../database/queries')
+const { 
+  createEntry,
+  listEntries,
+  updateEntry,
+  deleteEntry,
+} = require('../database/queries/entries')
 const entryRouter = express.Router()
 const isLoggedIn = require('../middleware/isLoggedIn')
 

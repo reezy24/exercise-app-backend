@@ -1,6 +1,6 @@
 const dayjs = require('dayjs')
 const express = require('express')
-const { getLeaderboardData } = require('../database/queries')
+const { getLeaderboardData } = require('../database/queries/leaderboard')
 const leaderboardRouter = express.Router()
 
 leaderboardRouter.post('/', async (req, res) => {
