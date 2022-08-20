@@ -15,8 +15,6 @@ leaderboardRouter.post('/', async (req, res) => {
   // Get the start and end of the day, and pass those in as the time range.
   const start = dayjs(day).startOf('day').toDate()
   const end = dayjs(day).endOf('day').toDate()
-  console.log(start)
-  console.log(end)
   let leaderboardData = await getLeaderboardData(start, end)
   // Calculate the percentages and strip the data we don't need.
   const leaderboardPercentages = leaderboardData.reduce((acc, entry) => {
@@ -37,6 +35,10 @@ leaderboardRouter.post('/', async (req, res) => {
 })
 
 function calculateExercisePercentage(entry) {
+  if (!entry.entry_amount || !entry.exercise_amount) {
+    return 0
+  }
+
   return (entry.entry_amount / entry.exercise_amount) / entry.totalExercises
 }
 
