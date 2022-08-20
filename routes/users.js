@@ -1,17 +1,20 @@
 const express = require('express')
 const userRouter = express.Router()
 const isLoggedIn = require('../middleware/isLoggedIn')
-const db = require("../database/connect")
-const { getUser } = require('../database/queries/users')
+const { getUser, listUsers } = require('../database/queries/users')
 
 // Lists all users.
 // TODO: This was only intended as a test endpoint, we shouldn't just be returning all the rows.
-userRouter.get('/list', async (_, res, next) => {
+userRouter.get('/list', isLoggedIn, async (req, res) => {
   try {
-    const dbres = await db.query('select * from users')
-    return res.send(dbres.rows)
-  } catch (err) {
-    next(err)
+    const users = await listUsers()
+    if (users.length === 0) {
+      return res.status(404).send('no users found')
+    }
+    return res.send(users)
+  } catch (e) {
+    console.error(e)
+    return res.status(500).send('failed to fetch users')
   }
 })
 
@@ -20,7 +23,7 @@ userRouter.get('/current', isLoggedIn, (req, res) => {
   return res.json(req.user)
 })
 
-userRouter.post('/get', async (req, res) => {
+userRouter.post('/get', isLoggedIn, async (req, res) => {
   // Validate.
   const { id } = req.body
   if (!id) {

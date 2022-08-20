@@ -44,8 +44,24 @@ async function getUser(id) {
   return res.rows[0]
 }
 
+async function listUsers() {
+  const res = await db.query(`
+    SELECT
+      u.id,
+      u.username,
+      u.first_name,
+      u.last_name,
+      r.id AS routine_id
+    FROM users AS u
+    INNER JOIN routines as r
+      ON r.owner_user_id=u.id
+  `)
+  return res.rows
+}
+
 module.exports = {
   findUserByUsername,
   createUser,
-  getUser
+  getUser,
+  listUsers,
 }
