@@ -1,7 +1,7 @@
 const express = require('express')
 const userRouter = express.Router()
 const isLoggedIn = require('../middleware/isLoggedIn')
-const { getUser, listUsers } = require('../database/queries/users')
+const { getUser, listUsers, updateUser } = require('../database/queries/users')
 
 // Lists all users.
 // TODO: This was only intended as a test endpoint, we shouldn't just be returning all the rows.
@@ -39,6 +39,25 @@ userRouter.post('/get', isLoggedIn, async (req, res) => {
   } catch (e) {
     console.error(e)
     return res.status(500).send('failed to fetch user')
+  }
+})
+
+userRouter.post('/update', isLoggedIn, async (req, res) => {
+  // Validate.
+  const { id, firstName, lastName } = req.body
+  if (!id) {
+    return res.status(400).send('id is required')
+  }
+  if (!firstName && !lastName) {
+    return res.status(400).send('require at least one of firstName or lastName')
+  }
+  // Update record.
+  try {
+    const entry = await updateUser(id, { first_name: firstName, last_name: lastName })
+    return res.send(entry)
+  } catch (e) {
+    console.error(e)
+    return res.status(500).send('failed to update entry')
   }
 })
 

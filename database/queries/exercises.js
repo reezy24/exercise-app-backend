@@ -32,7 +32,6 @@ async function getExercise(id) {
 }
 
 // `updates` should be { column1Name: newValue1, column2Name: newValue2... }
-// Also, I hate my life. Why is it so hard to write an update query?
 async function updateExercise(id, updates) {
   const validUpdates = Object.keys(updates).reduce((acc, columnName) => {
     const newValue = updates[columnName]

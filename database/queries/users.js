@@ -1,4 +1,5 @@
 const db = require('../connect')
+const { buildUpdateQueryBase } = require('./helpers')
 
 async function findUserByUsername(username) {
   const res = await db.query(`
@@ -59,9 +60,30 @@ async function listUsers() {
   return res.rows
 }
 
+async function updateUser(id, updates) {
+  const validUpdates = Object.keys(updates).reduce((acc, columnName) => {
+    const newValue = updates[columnName]
+    if (!newValue) {
+      return acc
+    }
+    return { ...acc, [columnName]: newValue }
+  }, {})
+  const newValues = Object.values(validUpdates)
+  const res = await db.query(`
+    ${buildUpdateQueryBase('users', validUpdates)}
+    WHERE id=$${newValues.length + 1}
+    RETURNING id, username, first_name, last_name
+  `, [...newValues, id])
+  if (!res.rows[0]) {
+    throw new Error('expected a user to be updated')
+  }
+  return res.rows[0]
+}
+
 module.exports = {
   findUserByUsername,
   createUser,
   getUser,
   listUsers,
+  updateUser,
 }
