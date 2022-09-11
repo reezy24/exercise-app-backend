@@ -1,6 +1,7 @@
 const dayjs = require('dayjs')
 const express = require('express')
 const { getLeaderboardData } = require('../database/queries/leaderboard')
+const { isValidDate } = require('../utils/utils')
 const leaderboardRouter = express.Router()
 
 leaderboardRouter.post('/', async (req, res) => {
@@ -40,11 +41,6 @@ function calculateExercisePercentage(entry) {
   }
 
   return (entry.entry_amount / entry.exercise_amount) / entry.totalExercises
-}
-
-// https://stackoverflow.com/a/1353711
-function isValidDate(d) {
-  return d instanceof Date && !isNaN(d)
 }
 
 module.exports = leaderboardRouter

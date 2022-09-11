@@ -77,6 +77,7 @@ exerciseRouter.post('/get', isLoggedIn, async (req, res) => {
   }
 })
 
+// Update exercise by its id.
 exerciseRouter.post('/update', isLoggedIn, async (req, res) => {
   // Validate.
   const { id, name, amount, unit, order } = req.body
@@ -94,6 +95,38 @@ exerciseRouter.post('/update', isLoggedIn, async (req, res) => {
     console.error(e)
     return res.status(500).send('failed to update exercise')
   }
+})
+
+// Batch update all exercises provided.
+exerciseRouter.post('/batch-update', isLoggedIn, async (req, res) => {
+  // Validate.
+  const { exercises } = req.body
+  if (exercises.length < 1) {
+    return res.status(400).send('no exercises submitted')
+  }
+
+  const updatedExercises = []
+  // TODO: Make single call instead of for await loop
+  for await (const exercise of exercises) {
+    const { id, name, amount, unit, order } = exercise
+    try {
+      // Validate.
+      if (!id) {
+        return res.status(400).send(`id is required for ${name}`)
+      }
+      if (!name && !amount && !unit && !order) {
+        return res.status(400).send('require at least one of name, amount, unit or order to be specified')
+      }
+      // Update record.
+      const ex = await updateExercise(id, { name, amount, unit, order })
+      updatedExercises.push(ex)
+    } catch (e) {
+      console.error(e)
+      return res.status(500).send(`failed to update exercise ${name}`)
+    }
+  }
+
+  return res.send(updatedExercises)
 })
 
 exerciseRouter.post('/delete', isLoggedIn, async (req, res) => {
