@@ -29,6 +29,16 @@ async function listEntries(exerciseId) {
   return res.rows
 }
 
+async function listEntriesOnDate(exerciseId, fromDate, toDate) {
+  const res = await db.query(`
+    SELECT id, exercise_id, amount, created_at, completed_at
+    FROM entries
+    WHERE exercise_id=$1
+    AND completed_at BETWEEN $2 AND $3
+  `, [exerciseId, fromDate, toDate])
+  return res.rows
+}
+
 async function updateEntry(id, amount) {
   // TODO: Support `created_at`.
   const res = await db.query(`
@@ -51,6 +61,7 @@ async function deleteEntry(id) {
 module.exports = {
     createEntry,
     listEntries,
+    listEntriesOnDate,
     updateEntry,
     deleteEntry,
 }

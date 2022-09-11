@@ -1,12 +1,15 @@
 const express = require('express')
+const dayjs = require('dayjs')
 const { 
   createEntry,
   listEntries,
+  listEntriesOnDate,
   updateEntry,
   deleteEntry,
 } = require('../database/queries/entries')
 const entryRouter = express.Router()
 const isLoggedIn = require('../middleware/isLoggedIn')
+// const { isValidDate } = require('../utils/utils')
 
 // Create a new entry.
 entryRouter.post('/create', isLoggedIn, async (req, res) => {
@@ -47,6 +50,53 @@ entryRouter.post('/list', isLoggedIn, async (req, res) => {
     console.error(e)
     return res.status(500).send('failed to fetch entries')
   }
+})
+
+// Batch get all entries for all exercises for current date.
+entryRouter.post('/list-batch-daily', isLoggedIn, async (req, res) => {
+  // Validate.
+  const { exerciseIds, day } = req.body
+  if (exerciseIds.length < 1) {
+    return res.status(400).send('no exercise IDs submitted')
+  }
+  if (!day) {
+    return res.status(400).send('day is required')
+  }
+  // TODO: NOT WORKING
+  // if (!isValidDate(day)) {
+  //   return res.status(400).send(`invalid date ${day}`)
+  // }
+  // Get the start and end of the day, and pass those in as the time range.
+  const start = dayjs(day).startOf('day').toDate()
+  const end = dayjs(day).endOf('day').toDate()
+
+  let alEntries = {}
+  // TODO: Make single call instead of for await loop
+  for await (const id of exerciseIds) {
+    // Validate.
+    try {
+      if (!id) {
+        return res.status(400).send('id is required')
+      }
+      // Update record.
+      const entries = await listEntriesOnDate(id, start, end)
+      // TODO: Determine how to send the response back. Might need to send all the entries and map on FE
+      // TODO: Might be able to show all the user's entries for that day if need?
+      // alEntries = {
+      //   ...alEntries,
+      //   [id]: entries,
+      // }
+      alEntries = {
+        ...alEntries,
+        [id]: entries.reduce((prev, curr) => prev + curr.amount, 0)
+      }
+    } catch (e) {
+      console.error(e)
+      return res.status(500).send('failed to fetch entries')
+    }
+  }
+
+  return res.send(alEntries)
 })
 
 entryRouter.post('/update', isLoggedIn, async (req, res) => {
