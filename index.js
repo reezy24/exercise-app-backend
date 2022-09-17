@@ -16,6 +16,7 @@ app.use(session({
   secure: process.env.USE_SECURE_SESSION,
   cookie: {
     domain: process.env.FRONTEND_ORIGIN,
+    sameSite: 'none',
   },
 }))
 app.use(passport.initialize())
