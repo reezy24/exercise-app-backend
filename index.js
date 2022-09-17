@@ -13,7 +13,7 @@ app.use(session({
   saveUninitialized: false,
   httpOnly: false,
   // TODO: Configure `secure` value based on env - should be true for deployed versions i.e. over HTTPS connections. 
-  // secure: true
+  secure: process.env.USE_SECURE_SESSION,
 }))
 app.use(passport.initialize())
 app.use(passport.session())
