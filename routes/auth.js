@@ -15,17 +15,10 @@ authRouter.get('/failure', (req, res) => {
 // Callback when authenticating through Google.
 authRouter.get('/google/callback', 
   passport.authenticate('google', {
-    successRedirect: process.env.FRONTEND_ORIGIN,//'/auth/next',
+    successRedirect: process.env.FRONTEND_ORIGIN,
     failureRedirect: '/auth/failure',
   })
 )
-
-// Use this as the auth callback.
-authRouter.get('/next', (req, res) => {
-  const { cookie } = req.headers
-  const session = encodeURIComponent(cookie.match(/(?<=\=).+/g)?.[0])
-  res.redirect(process.env.FRONTEND_ORIGIN + `/?session=${session}`);
-});
 
 // Log out the user.
 authRouter.get('/logout', (req, res) => {

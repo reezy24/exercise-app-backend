@@ -11,11 +11,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  httpOnly: false,
-  // TODO: Configure `secure` value based on env - should be true for deployed versions i.e. over HTTPS connections. 
   cookie: {
-    domain: process.env.FRONTEND_ORIGIN,
-    sameSite: 'none',
     secure: process.env.USE_SECURE_SESSION,
   },
 }))
