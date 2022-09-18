@@ -13,11 +13,20 @@ authRouter.get('/failure', (req, res) => {
 })
 
 // Callback when authenticating through Google.
-authRouter.get('/google/callback', 
-  passport.authenticate('google', {
-    successRedirect: process.env.FRONTEND_ORIGIN,
-    failureRedirect: '/auth/failure',
-  })
+// authRouter.get('/google/callback', 
+//   passport.authenticate('google', {
+//     successRedirect: process.env.FRONTEND_ORIGIN,
+//     failureRedirect: '/auth/failure',
+//   })
+// )
+
+authRouter.get('/google/callback', (req, res) => {
+  console.log(req.route)
+  return passport.authenticate('google', {
+      successRedirect: process.env.FRONTEND_ORIGIN,
+      failureRedirect: '/auth/failure',
+    })(req, res)
+  }
 )
 
 // Log out the user.
