@@ -12,7 +12,7 @@ export default function Login() {
 
   function handleLoginWithGoogle() {
     setLoading(true);
-    window.open(`${process.env.REACT_APP_API_ENDPOINT}/auth/google`, "_self");
+    window.open(`/api/auth/google`, "_self");
     setTimeout(() => {
       setLoading(false);
       navigate("/");
