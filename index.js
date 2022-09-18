@@ -13,6 +13,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
+    domain: process.env.COOKIE_DOMAIN,
     secure: process.env.USE_SECURE_SESSION,
   },
 }))
