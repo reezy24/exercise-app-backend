@@ -15,7 +15,7 @@ authRouter.get('/failure', (req, res) => {
 // Callback when authenticating through Google.
 authRouter.get('/google/callback', 
   passport.authenticate('google', {
-    successRedirect: '/auth/next',
+    successRedirect: process.env.FRONTEND_ORIGIN,//'/auth/next',
     failureRedirect: '/auth/failure',
   })
 )
