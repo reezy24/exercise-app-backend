@@ -5,7 +5,9 @@ const { getUser, listUsers, updateUser } = require('../database/queries/users')
 
 // Lists all users.
 // TODO: This was only intended as a test endpoint, we shouldn't just be returning all the rows.
-userRouter.get('/list', isLoggedIn, async (req, res) => {
+// TODO: Add authentication back in.
+// userRouter.get('/list', isLoggedIn, async (req, res) => {
+userRouter.get('/list', async (req, res) => {
   try {
     const users = await listUsers()
     if (users.length === 0) {
