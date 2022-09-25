@@ -5,15 +5,17 @@ const leaderboardRouter = express.Router()
 
 leaderboardRouter.post('/', async (req, res) => {
   let { day } = req.body
+
   if (!day) {
     return res.status(400).send('day is required')
   }
 
+  day = getAEST(day)
+
   if (!isValidDate(day)) {
     return res.status(400).send(`invalid date ${day}`)
   }
-
-  day = getAEST(day)
+  
   // Get the start and end of the day, and pass those in as the time range.
   const start = getStartOfDay(day)
   const end = getEndOfDay(day)
