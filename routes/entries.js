@@ -1,15 +1,15 @@
 const express = require('express')
-const dayjs = require('dayjs')
 const { 
   createEntry,
   listEntries,
-  listEntriesOnDate,
+  listEntriesPerExerciseOnDate,
   updateEntry,
   deleteEntry,
+  listEntriesAllExercisesOnDate,
 } = require('../database/queries/entries')
 const entryRouter = express.Router()
 const isLoggedIn = require('../middleware/isLoggedIn')
-// const { isValidDate } = require('../utils/utils')
+const { getAEST, getStartOfDay, getEndOfDay } = require('../utils/utils')
 
 // Create a new entry.
 entryRouter.post('/create', isLoggedIn, async (req, res) => {
@@ -55,20 +55,20 @@ entryRouter.post('/list', isLoggedIn, async (req, res) => {
 // Batch get all entries for all exercises for current date.
 entryRouter.post('/list-batch-daily', isLoggedIn, async (req, res) => {
   // Validate.
-  const { exerciseIds, day } = req.body
+  let { exerciseIds, day } = req.body
+
   if (exerciseIds.length < 1) {
     return res.status(400).send('no exercise IDs submitted')
   }
   if (!day) {
     return res.status(400).send('day is required')
   }
-  // TODO: NOT WORKING
-  // if (!isValidDate(day)) {
-  //   return res.status(400).send(`invalid date ${day}`)
-  // }
+
+  day = getAEST(day)
+
   // Get the start and end of the day, and pass those in as the time range.
-  const start = dayjs(day).startOf('day').toDate()
-  const end = dayjs(day).endOf('day').toDate()
+  const start = getStartOfDay(day)
+  const end = getEndOfDay(day)
 
   let alEntries = {}
   // TODO: Make single call instead of for await loop
@@ -79,7 +79,7 @@ entryRouter.post('/list-batch-daily', isLoggedIn, async (req, res) => {
         return res.status(400).send('id is required')
       }
       // Update record.
-      const entries = await listEntriesOnDate(id, start, end)
+      const entries = await listEntriesPerExerciseOnDate(id, start, end)
       // TODO: Determine how to send the response back. Might need to send all the entries and map on FE
       // TODO: Might be able to show all the user's entries for that day if need?
       // alEntries = {
@@ -98,6 +98,42 @@ entryRouter.post('/list-batch-daily', isLoggedIn, async (req, res) => {
 
   return res.send(alEntries)
 })
+
+// Batch get all entries for all exercises for current date.
+// entryRouter.post('/list-batch-daily', isLoggedIn, async (req, res) => {
+//   // Validate.
+//   let { exerciseIds, day } = req.body
+//   console.log('exerciseIds', exerciseIds);
+// h 
+//   if (exerciseIds.length < 1) {
+//     return res.status(400).send('no exercise IDs submitted')
+//   }
+
+//   const stringOfExerciseIds = exerciseIds.join()
+
+//   if (!day) {
+//     return res.status(400).send('day is required')
+//   }
+
+//   day = getAEST(day)
+
+//   // Get the start and end of the day, and pass those in as the time range.
+//   const start = getStartOfDay(day)
+//   const end = getEndOfDay(day)
+ 
+//   try {
+//     // Update record.
+//     const entries = await listEntriesAllExercisesOnDate(stringOfExerciseIds, start, end)
+//     console.log('entries', entries);
+//     if (entries.length <= 0) {
+//       return res.status(404).send('no entries found')
+//     }
+//     return res.send(entries)
+//   } catch (e) {
+//     console.error(e)
+//     return res.status(500).send('failed to fetch entries')
+//   }
+// })
 
 entryRouter.post('/update', isLoggedIn, async (req, res) => {
   // Validate.
