@@ -1,6 +1,6 @@
 const express = require('express')
 const { getLeaderboardData } = require('../database/queries/leaderboard')
-const { isValidDate, getAEST, getStartOfDay, getEndOfDay} = require('../utils/utils')
+const { isValidDate, getAEST, getStartOfDayFromDate, getEndOfDayFromDate} = require('../utils/utils')
 const leaderboardRouter = express.Router()
 
 leaderboardRouter.post('/', async (req, res) => {
@@ -17,8 +17,8 @@ leaderboardRouter.post('/', async (req, res) => {
   }
   
   // Get the start and end of the day, and pass those in as the time range.
-  const start = getStartOfDay(day)
-  const end = getEndOfDay(day)
+  const start = getStartOfDayFromDate(day)
+  const end = getEndOfDayFromDate(day)
 
   let leaderboardData = await getLeaderboardData(start, end)
   // Calculate the percentages and strip the data we don't need.

@@ -1,12 +1,12 @@
 const db = require('../connect')
 
-async function createEntry(exerciseId, amount, completedAt) {
-  let columnNames = 'exercise_id, amount'
-  let values = '$1, $2'
-  let args = [exerciseId, amount]
+async function createEntry(exerciseId, amount, createdAt, completedAt) {
+  let columnNames = 'exercise_id, amount, created_at'
+  let values = '$1, $2, $3'
+  let args = [exerciseId, amount, createdAt]
   if (completedAt) {
     columnNames += ', completed_at'
-    values += ', $3'
+    values += ', $4'
     args.push(completedAt)
   }
   const res = await db.query(`
@@ -33,7 +33,7 @@ async function listEntriesPerExerciseOnDate(exerciseId, fromDate, toDate) {
   const res = await db.query(`
     SELECT id, exercise_id, amount, created_at, completed_at
     FROM entries
-    WHERE id=$1
+    WHERE exercise_id=$1
     AND completed_at BETWEEN $2 AND $3
   `, [exerciseId, fromDate, toDate])
   return res.rows
@@ -43,7 +43,7 @@ async function listEntriesAllExercisesOnDate(exerciseIds, fromDate, toDate) {
   const res = await db.query(`
     SELECT id, exercise_id, amount, created_at, completed_at
     FROM entries
-    WHERE id IN (SELECT * FROM STRING_SPLIT($1, ','))
+    WHERE exercise_id IN (SELECT * FROM STRING_SPLIT($1, ','))
     AND completed_at BETWEEN $2 AND $3
   `, [exerciseIds, fromDate, toDate])
   return res.rows
