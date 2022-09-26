@@ -9,7 +9,7 @@ const {
 } = require('../database/queries/entries')
 const entryRouter = express.Router()
 const isLoggedIn = require('../middleware/isLoggedIn')
-const { getAEST, getStartOfDay, getEndOfDay } = require('../utils/utils')
+const { getAEST, getStartOfDayFromDate, getEndOfDayFromDate } = require('../utils/utils')
 
 // Create a new entry.
 entryRouter.post('/create', isLoggedIn, async (req, res) => {
@@ -21,10 +21,15 @@ entryRouter.post('/create', isLoggedIn, async (req, res) => {
   if (!amount) {
     return res.status(400).send('amount is required')
   }
+
+  const day = new Date().toISOString();
+  const createdAt = getAEST(day)
+  const completedAt = createdAt
+
   // TODO: Support `completed_at` - date likely needs to be parsed to fit Postgres type.
   // Create record.
   try {
-    const entry = await createEntry(exerciseId, amount)
+    const entry = await createEntry(exerciseId, amount, createdAt, completedAt)
     return res.send(entry)
   } catch (e) {
     console.error(e)
@@ -67,8 +72,8 @@ entryRouter.post('/list-batch-daily', isLoggedIn, async (req, res) => {
   day = getAEST(day)
 
   // Get the start and end of the day, and pass those in as the time range.
-  const start = getStartOfDay(day)
-  const end = getEndOfDay(day)
+  const start = getStartOfDayFromDate(day)
+  const end = getEndOfDayFromDate(day)
 
   let alEntries = {}
   // TODO: Make single call instead of for await loop
@@ -118,8 +123,8 @@ entryRouter.post('/list-batch-daily', isLoggedIn, async (req, res) => {
 //   day = getAEST(day)
 
 //   // Get the start and end of the day, and pass those in as the time range.
-//   const start = getStartOfDay(day)
-//   const end = getEndOfDay(day)
+//   const start = getStartOfDayFromDate(day)
+//   const end = getEndOfDayFromDate(day)
  
 //   try {
 //     // Update record.

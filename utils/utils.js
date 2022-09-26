@@ -7,17 +7,17 @@ function getAEST(d) {
   return new Date(new Date(d).getTime() + (10 * 60 * 60 * 1000))
 }
 
-function getStartOfDay(d) {
+function getStartOfDayFromDate(d) {
   return d.toISOString().split('T')[0] + 'T00:00:00.000Z'
 }
 
-function getEndOfDay(d) {
+function getEndOfDayFromDate(d) {
   return d.toISOString().split('T')[0] + 'T23:59:59.000Z'
 }
 
 module.exports = {
   isValidDate,
   getAEST,
-  getStartOfDay,
-  getEndOfDay,
+  getStartOfDayFromDate,
+  getEndOfDayFromDate,
 }

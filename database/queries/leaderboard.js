@@ -25,7 +25,7 @@ async function getLeaderboardData(fromDate, toDate) {
         ON ex.routine_id = r.id
       INNER JOIN users AS u
         ON r.owner_user_id = u.id
-      WHERE en.completed_at BETWEEN $1 AND $2
+      WHERE en.created_at BETWEEN $1 AND $2
       GROUP BY ex.id, u.id
     ) AS t ON u2.id = t.user_id
   `, [fromDate, toDate])
