@@ -20,13 +20,14 @@ app.set("trust proxy", 1);
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  // cookie: { 
-  //   sameSite: "none",
-  //   secure: process.env.USE_SECURE_SESSION,
-  //   maxAge: 1000 * 60 * 60 * 24 * 7, // one week
-  // },
+  resave: process.env.NODE_ENV === 'production' ? true : false,
+  saveUninitialized: process.env.NODE_ENV === 'production' ? true : false,
+  ...(process.env.NODE_ENV === 'production' && { 
+    cookie: {
+      sameSite: "none",
+      secure: true,
+      maxAge: 1000 * 60 * 60 * 24 * 7, // one week
+    }})
 }));
 
 // app.use(session());
