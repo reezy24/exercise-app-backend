@@ -1,8 +1,8 @@
 const express = require('express')
 const userRouter = express.Router()
 const isLoggedIn = require('../middleware/isLoggedIn')
-const { getUser, listUsers, updateUser } = require('../database/queries/users')
-
+const {findUserByUsername, getUser, listUsers, updateUser,  } = require('../database/queries/users')
+  
 // Lists all users.
 // TODO: This was only intended as a test endpoint, we shouldn't just be returning all the rows.
 // TODO: Add authentication back in.
@@ -21,9 +21,22 @@ userRouter.get('/list', async (req, res) => {
 })
 
 // Returns the current logged in user.
-userRouter.get('/current', isLoggedIn, (req, res) => {
-  return res.send(req.user)
-  // return res.json(req.user)
+userRouter.get('/current', isLoggedIn, async (req, res) => {
+  try {
+    let user = await findUserByUsername(req.user);
+    if (user) {
+      return res.send({
+        id: user.id,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        routineId: user.routine_id,
+        username: user.username,
+      })
+    }
+  } catch (e) {
+    console.error(e)
+    return res.status(404).send('user not found')
+  }
 })
 
 userRouter.post('/get', isLoggedIn, async (req, res) => {

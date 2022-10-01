@@ -15,6 +15,7 @@ passport.use(new GoogleStrategy({
   callbackURL: '/auth/google/callback',
 },
   async function (_, _, profile, cb) {
+    console.log(profile);
     try {
       let user = await findUserByUsername(profile.emails[0].value);
       if (user) {
@@ -24,9 +25,9 @@ passport.use(new GoogleStrategy({
       return cb(
         null,
         await handleSignup(
-          profile.email,
-          profile.given_name,
-          profile.family_name
+          profile.emails[0].value,
+          profile.name.givenName,
+          profile.name.familyName
         )
       );
     } catch (e) {
@@ -38,13 +39,7 @@ passport.use(new GoogleStrategy({
 
 // Choose which parts of the user we want to store into the session.
 passport.serializeUser((user, done) => {
-  return done(null, {
-    id: user.id,
-    username: user.username,
-    firstName: user.first_name,
-    lastName: user.last_name,
-    routineId: user.routine_id,
-  });
+  return done(null, user.username);
 });
 
 passport.deserializeUser((user, done) => {

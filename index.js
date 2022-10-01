@@ -3,7 +3,6 @@ const passport = require('passport')
 const express = require("express");
 const session = require("express-session")
 const cors = require("cors");
-// const { getUser } = require("./database/queries/users");
 const port = process.env.PORT || 4000;
 
 // Use middlewares.
@@ -30,12 +29,13 @@ app.use(session({
     }})
 }));
 
-// app.use(session());
 app.use(passport.initialize())
 app.use(passport.session())
 
 // Sub routes.
-app.use('/', require("./routes/example"))
+app.get("/", (req, res) => {
+  res.send("Hello World");
+})
 app.use('/auth', require('./routes/auth'))
 app.use('/users', require('./routes/users'))
 app.use('/exercises', require('./routes/exercises'))

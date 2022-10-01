@@ -10,13 +10,14 @@ authRouter.get('/google',
 
 authRouter.get('/google/callback', 
   passport.authenticate('google', { failureRedirect: '/login'}),
-  function(req, res) {
+  (req, res) => {
     res.redirect(process.env.FRONTEND_ORIGIN)
   });
   
 // Page to redirect to if login fails.
 authRouter.get('/failure', (req, res) => {
-  return res.send(`<div>Couldn't log you in. <a href="${process.env.FRONTEND_ORIGIN}">Back to home</a></div>`)
+  // return res.send(`<div>Couldn't log you in. <a href="${process.env.FRONTEND_ORIGIN}">Back to home</a></div>`)
+  res.redirect(`${process.env.FRONTEND_ORIGIN}/failure`)
 })
 
 // Log out the user.
@@ -28,16 +29,6 @@ authRouter.get('/logout', (req, res) => {
     req.session.destroy()
     res.end()
   })
-})
-
-// TODO: Delete this if no longer needed.
-authRouter.get('/logged-out', (req, res) => {
-  return res.send(`
-    <div>
-      <p>You have logged out.</p>
-      <a href="${process.env.FRONTEND_ORIGIN}">Back to home</a>
-    </div>
-  `)
 })
 
 module.exports = authRouter
