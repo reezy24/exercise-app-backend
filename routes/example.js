@@ -2,6 +2,10 @@ const express = require('express')
 const exampleRouter = express.Router()
 const isLoggedIn = require('../middleware/isLoggedIn')
 
+exampleRouter.get("/", (req, res) => {
+  res.send("Hello World");
+})
+
 // Example of a protected route.
 exampleRouter.get('/protected', isLoggedIn, (req, res) => {
   return res.send(`Hello, ${req.user.firstName} ${req.user.lastName}`)
