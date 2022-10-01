@@ -40,9 +40,6 @@ async function listEntriesPerExerciseOnDate(exerciseId, fromDate, toDate) {
 }
 
 async function listEntriesAllExercisesOnDate(exerciseIds, fromDate, toDate) {
-  // TODO: fix
-  const ids = exerciseIds.split(', ');
-  console.log(ids);
   const res = await db.query(`
     SELECT id, exercise_id, amount, created_at, completed_at
     FROM entries

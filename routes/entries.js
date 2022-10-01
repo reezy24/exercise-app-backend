@@ -25,14 +25,11 @@ entryRouter.post('/create', isLoggedIn, async (req, res) => {
   const day = new Date().toISOString();
   const createdAt = getAEST(day)
   const completedAt = createdAt
-  console.log('createdAt', createdAt);
-  console.log('completedAt', completedAt);
 
   // TODO: Support `completed_at` - date likely needs to be parsed to fit Postgres type.
   // Create record.
   try {
     const entry = await createEntry(exerciseId, amount, createdAt, completedAt)
-    console.log(entry);
     return res.send(entry)
   } catch (e) {
     console.error(e)
@@ -104,7 +101,6 @@ entryRouter.post('/list-batch-daily', isLoggedIn, async (req, res) => {
     }
   }
 
-  console.log(allEntries);
   return res.send(allEntries)
 })
 
