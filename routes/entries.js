@@ -25,11 +25,14 @@ entryRouter.post('/create', isLoggedIn, async (req, res) => {
   const day = new Date().toISOString();
   const createdAt = getAEST(day)
   const completedAt = createdAt
+  console.log('createdAt', createdAt);
+  console.log('completedAt', completedAt);
 
   // TODO: Support `completed_at` - date likely needs to be parsed to fit Postgres type.
   // Create record.
   try {
     const entry = await createEntry(exerciseId, amount, createdAt, completedAt)
+    console.log(entry);
     return res.send(entry)
   } catch (e) {
     console.error(e)
@@ -75,7 +78,7 @@ entryRouter.post('/list-batch-daily', isLoggedIn, async (req, res) => {
   const start = getStartOfDayFromDate(day)
   const end = getEndOfDayFromDate(day)
 
-  let alEntries = {}
+  let allEntries = {}
   // TODO: Make single call instead of for await loop
   for await (const id of exerciseIds) {
     // Validate.
@@ -87,12 +90,12 @@ entryRouter.post('/list-batch-daily', isLoggedIn, async (req, res) => {
       const entries = await listEntriesPerExerciseOnDate(id, start, end)
       // TODO: Determine how to send the response back. Might need to send all the entries and map on FE
       // TODO: Might be able to show all the user's entries for that day if need?
-      // alEntries = {
-      //   ...alEntries,
+      // allEntries = {
+      //   ...allEntries,
       //   [id]: entries,
       // }
-      alEntries = {
-        ...alEntries,
+      allEntries = {
+        ...allEntries,
         [id]: entries.reduce((prev, curr) => prev + curr.amount, 0)
       }
     } catch (e) {
@@ -101,7 +104,8 @@ entryRouter.post('/list-batch-daily', isLoggedIn, async (req, res) => {
     }
   }
 
-  return res.send(alEntries)
+  console.log(allEntries);
+  return res.send(allEntries)
 })
 
 // Batch get all entries for all exercises for current date.

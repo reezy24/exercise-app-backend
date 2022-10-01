@@ -22,7 +22,8 @@ userRouter.get('/list', async (req, res) => {
 
 // Returns the current logged in user.
 userRouter.get('/current', isLoggedIn, (req, res) => {
-  return res.json(req.user)
+  return res.send(req.user)
+  // return res.json(req.user)
 })
 
 userRouter.post('/get', isLoggedIn, async (req, res) => {
