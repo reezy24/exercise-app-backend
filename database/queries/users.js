@@ -1,13 +1,14 @@
 const db = require('../connect')
 const { buildUpdateQueryBase } = require('./helpers')
 
-async function findUserByUsername(username) {
+async function findUserByUsername(username, picture) {
   const res = await db.query(`
     SELECT
       u.id,
       u.username,
       u.first_name,
       u.last_name,
+      u.picture,
       r.id AS routine_id
     FROM users AS u
     INNER JOIN routines as r
@@ -17,12 +18,12 @@ async function findUserByUsername(username) {
   return res.rows[0]
 }
 
-async function createUser(username, firstName, lastName) {
+async function createUser(username, firstName, lastName, picture) {
   const res = await db.query(`
-    INSERT INTO users(username, first_name, last_name)
-    VALUES($1, $2, $3)
-    RETURNING id, username, first_name, last_name
-  `, [username, firstName, lastName])
+    INSERT INTO users(username, first_name, last_name, picture)
+    VALUES($1, $2, $3, $4)
+    RETURNING id, username, first_name, last_name, picture
+  `, [username, firstName, lastName, picture])
   if (!res.rows[0]) {
     throw new Error('expected a user to be created')
   }
@@ -36,6 +37,7 @@ async function getUser(id) {
       u.username,
       u.first_name,
       u.last_name,
+      u.picture,
       r.id AS routine_id
     FROM users AS u
     INNER JOIN routines as r
@@ -52,6 +54,7 @@ async function listUsers() {
       u.username,
       u.first_name,
       u.last_name,
+      u.picture,
       r.id AS routine_id
     FROM users AS u
     INNER JOIN routines as r
@@ -71,8 +74,8 @@ async function updateUser(id, updates) {
   const newValues = Object.values(validUpdates)
   const res = await db.query(`
     ${buildUpdateQueryBase('users', validUpdates)}
-    WHERE id=$${newValues.length + 1}
-    RETURNING id, username, first_name, last_name
+    WHERE id = $${newValues.length + 1}
+    RETURNING id, username, first_name, last_name, picture
   `, [...newValues, id])
   if (!res.rows[0]) {
     throw new Error('expected a user to be updated')

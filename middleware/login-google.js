@@ -4,6 +4,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const {
   findUserByUsername,
   createUser,
+  updateUser,
 } = require("../database/queries/users");
 const {
   createRoutine,
@@ -15,9 +16,14 @@ passport.use(new GoogleStrategy({
   callbackURL: '/auth/google/callback',
 },
   async function (_, _, profile, cb) {
-    console.log(profile);
     try {
       let user = await findUserByUsername(profile.emails[0].value);
+
+      // Updates users profile picture if it doesn't exist but is returned from Google.
+      if (profile.photos?.[0]?.value && !user.picture) {
+        user = await updateUser(user.id, { picture: profile.photos?.[0]?.value ?? '' })
+      }
+
       if (user) {
         return cb(null, user);
       }
@@ -27,7 +33,8 @@ passport.use(new GoogleStrategy({
         await handleSignup(
           profile.emails[0].value,
           profile.name.givenName,
-          profile.name.familyName
+          profile.name.familyName,
+          profile.photos?.[0]?.value
         )
       );
     } catch (e) {
@@ -47,8 +54,8 @@ passport.deserializeUser((user, done) => {
 });
 
 // Create the user and also a default routine for them to use.
-async function handleSignup(email, firstName, lastName) {
-  const user = await createUser(email, firstName, lastName)
+async function handleSignup(email, firstName, lastName, picture = null) {
+  const user = await createUser(email, firstName, lastName, picture)
   const routine = await createRoutine(user.id, `${firstName} ${lastName}'s Routine`)
   return { ...user, routine_id: routine.id }
 }
