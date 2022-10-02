@@ -19,8 +19,8 @@ app.set("trust proxy", 1);
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
-  resave: process.env.NODE_ENV === 'production' ? true : false,
-  saveUninitialized: process.env.NODE_ENV === 'production' ? true : false,
+  resave: true,
+  saveUninitialized: true,
   ...(process.env.NODE_ENV === 'production' && { 
     cookie: {
       sameSite: "none",
