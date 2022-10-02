@@ -6,6 +6,7 @@ async function getLeaderboardData(fromDate, toDate) {
       u2.id as user_id,
       u2.first_name,
       u2.last_name,
+      u2.picture,
       t.entry_amount,
       t.exercise_id,
       t.exercise_amount
@@ -15,6 +16,7 @@ async function getLeaderboardData(fromDate, toDate) {
         u.id AS user_id,
         u.first_name,
         u.last_name,
+        u.picture,
         SUM(en.amount) AS entry_amount,
         ex.id AS exercise_id,
         ex.amount AS exercise_amount

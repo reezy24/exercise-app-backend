@@ -30,6 +30,7 @@ leaderboardRouter.post('/', async (req, res) => {
         firstName: entry.first_name,
         lastName: entry.last_name,
         percentage: exercisePercentage,
+        picture: entry.picture,
       }
       return acc
     }

@@ -5,9 +5,7 @@ const {findUserByUsername, getUser, listUsers, updateUser,  } = require('../data
   
 // Lists all users.
 // TODO: This was only intended as a test endpoint, we shouldn't just be returning all the rows.
-// TODO: Add authentication back in.
-// userRouter.get('/list', isLoggedIn, async (req, res) => {
-userRouter.get('/list', async (req, res) => {
+userRouter.get('/list', isLoggedIn, async (req, res) => {
   try {
     const users = await listUsers()
     if (users.length === 0) {
@@ -31,6 +29,7 @@ userRouter.get('/current', isLoggedIn, async (req, res) => {
         lastName: user.last_name,
         routineId: user.routine_id,
         username: user.username,
+        picture: user.picture,
       })
     }
   } catch (e) {
@@ -60,16 +59,16 @@ userRouter.post('/get', isLoggedIn, async (req, res) => {
 
 userRouter.post('/update', isLoggedIn, async (req, res) => {
   // Validate.
-  const { id, firstName, lastName } = req.body
+  const { id, firstName, lastName, picture } = req.body
   if (!id) {
     return res.status(400).send('id is required')
   }
-  if (!firstName && !lastName) {
-    return res.status(400).send('require at least one of firstName or lastName')
+  if (!firstName && !lastName && !picture) {
+    return res.status(400).send('require at least one of firstName, lastName or picture')
   }
   // Update record.
   try {
-    const entry = await updateUser(id, { first_name: firstName, last_name: lastName })
+    const entry = await updateUser(id, { first_name: firstName, last_name: lastName, picture: picture })
     return res.send(entry)
   } catch (e) {
     console.error(e)
