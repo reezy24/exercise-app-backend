@@ -5,27 +5,26 @@ function isValidDate(d) {
   return d instanceof Date && !isNaN(d)
 }
 
-function getAEST(d) {
+function getAESTISOString(d) {
   return new Date(new Date(d).getTime() + UTC_TO_AEST_TIME_DIFFERENCE).toISOString()
 }
 
-function getUTCFromAEST(d) {
-  return new Date(new Date(d).getTime() - UTC_TO_AEST_TIME_DIFFERENCE).toISOString()
-}
+// function getUTCFromAEST(d) {
+//   return new Date(new Date(d).getTime() - UTC_TO_AEST_TIME_DIFFERENCE).toISOString()
+// }
 
 function getStartOfDayFromDate(d) {
-  const start = getAEST(d).split('T')[0] + 'T00:00:00.000Z'
-  return getUTCFromAEST(start)
+  return (d).split('T')[0] + 'T00:00:00.000Z'
 }
 
 function getEndOfDayFromDate(d) {
-  const end = getAEST(d).split('T')[0] + 'T23:59:59.000Z'
-  return getUTCFromAEST(end)
+  return (d).split('T')[0] + 'T23:59:59.000Z'
+
 }
 
 module.exports = {
   isValidDate,
-  getAEST,
+  getAESTISOString,
   getStartOfDayFromDate,
   getEndOfDayFromDate,
 }
