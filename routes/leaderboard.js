@@ -1,20 +1,64 @@
 const express = require('express')
-const { getLeaderboardData } = require('../database/queries/leaderboard')
+const { getDailyLeaderboardData } = require('../database/queries/leaderboard')
 const { getStartOfDayFromDate, getEndOfDayFromDate} = require('../utils/utils')
 const leaderboardRouter = express.Router()
 
 leaderboardRouter.post('/', async (req, res) => {
-  let { day } = req.body
+  const { from, to} = req.body
 
-  if (!day) {
-    return res.status(400).send('day is required')
+  if (!from) {
+    return res.status(400).send('from day is required')
+  }
+
+  if (!to) {
+    return res.status(400).send('to day is required')
   }
 
   // Get the start and end of the day, and pass those in as the time range.
-  const start = getStartOfDayFromDate(day)
-  const end = getEndOfDayFromDate(day)
+  const start = getStartOfDayFromDate(from)
+  const end = getEndOfDayFromDate(to)
 
-  let leaderboardData = await getLeaderboardData(start, end)
+  let leaderboardData = await getDailyLeaderboardData(start, end, userId)
+  // Calculate the percentages and strip the data we don't need.
+  const leaderboardPercentages = leaderboardData.reduce((acc, entry) => {
+    const exercisePercentage = calculateExercisePercentage(entry)
+    if (!acc[entry.user_id]) {
+      acc[entry.user_id] = {
+        userId: entry.user_id,
+        firstName: entry.first_name,
+        lastName: entry.last_name,
+        percentage: exercisePercentage,
+        picture: entry.picture,
+      }
+      return acc
+    }
+    acc[entry.user_id].percentage += exercisePercentage
+    return acc
+  }, {})
+  res.json(leaderboardPercentages)
+})
+
+
+leaderboardRouter.post('/user', async (req, res) => {
+  const { from, to, userId } = req.body
+
+  if (!from) {
+    return res.status(400).send('from day is required')
+  }
+
+  if (!to) {
+    return res.status(400).send('to day is required')
+  }
+
+  if (!userId) {
+    return res.status(400).send('userId is required')
+  }
+
+  // Get the start and end of the day, and pass those in as the time range.
+  const start = getStartOfDayFromDate(from)
+  const end = getEndOfDayFromDate(to)
+
+  let leaderboardData = await getDailyLeaderboardData(start, end, userId)
   // Calculate the percentages and strip the data we don't need.
   const leaderboardPercentages = leaderboardData.reduce((acc, entry) => {
     const exercisePercentage = calculateExercisePercentage(entry)
