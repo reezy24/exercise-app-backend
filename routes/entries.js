@@ -8,7 +8,7 @@ const {
 } = require('../database/queries/entries')
 const entryRouter = express.Router()
 const isLoggedIn = require('../middleware/isLoggedIn')
-const { getStartOfDayFromDate, getEndOfDayFromDate } = require('../utils/utils')
+const { getStartOfDayFromDate, getEndOfDayFromDate, getAESTISOString } = require('../utils/utils')
 
 // Create a new entry.
 entryRouter.post('/create', isLoggedIn, async (req, res) => {
@@ -65,6 +65,9 @@ entryRouter.post('/list-batch-daily', isLoggedIn, async (req, res) => {
     return res.status(400).send('day is required')
   }
 
+
+  day = getAESTISOString(day)
+
   // Get the start and end of the day, and pass those in as the time range.
   const start = getStartOfDayFromDate(day)
   const end = getEndOfDayFromDate(day)
@@ -108,7 +111,7 @@ entryRouter.post('/list-batch-daily', isLoggedIn, async (req, res) => {
 //     return res.status(400).send('day is required')
 //   }
 
-//   day = getAEST(day)
+//   day = getAESTISOString(day)
 
 //   // Get the start and end of the day, and pass those in as the time range.
 //   const start = getStartOfDayFromDate(day)
