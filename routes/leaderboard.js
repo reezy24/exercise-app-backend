@@ -1,6 +1,6 @@
 const express = require('express')
 const { getLeaderboardData } = require('../database/queries/leaderboard')
-const { isValidDate, getAEST, getStartOfDayFromDate, getEndOfDayFromDate} = require('../utils/utils')
+const { getStartOfDayFromDate, getEndOfDayFromDate} = require('../utils/utils')
 const leaderboardRouter = express.Router()
 
 leaderboardRouter.post('/', async (req, res) => {
@@ -10,12 +10,6 @@ leaderboardRouter.post('/', async (req, res) => {
     return res.status(400).send('day is required')
   }
 
-  day = getAEST(day)
-
-  if (!isValidDate(day)) {
-    return res.status(400).send(`invalid date ${day}`)
-  }
-  
   // Get the start and end of the day, and pass those in as the time range.
   const start = getStartOfDayFromDate(day)
   const end = getEndOfDayFromDate(day)

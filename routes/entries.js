@@ -5,11 +5,10 @@ const {
   listEntriesPerExerciseOnDate,
   updateEntry,
   deleteEntry,
-  listEntriesAllExercisesOnDate,
 } = require('../database/queries/entries')
 const entryRouter = express.Router()
 const isLoggedIn = require('../middleware/isLoggedIn')
-const { getAEST, getStartOfDayFromDate, getEndOfDayFromDate } = require('../utils/utils')
+const { getStartOfDayFromDate, getEndOfDayFromDate } = require('../utils/utils')
 
 // Create a new entry.
 entryRouter.post('/create', isLoggedIn, async (req, res) => {
@@ -22,14 +21,11 @@ entryRouter.post('/create', isLoggedIn, async (req, res) => {
     return res.status(400).send('amount is required')
   }
 
-  const day = new Date().toISOString();
-  const createdAt = getAEST(day)
-  const completedAt = createdAt
+  const day = new Date();
 
-  // TODO: Support `completed_at` - date likely needs to be parsed to fit Postgres type.
   // Create record.
   try {
-    const entry = await createEntry(exerciseId, amount, createdAt, completedAt)
+    const entry = await createEntry(exerciseId, amount, day, day)
     return res.send(entry)
   } catch (e) {
     console.error(e)
@@ -69,8 +65,6 @@ entryRouter.post('/list-batch-daily', isLoggedIn, async (req, res) => {
     return res.status(400).send('day is required')
   }
 
-  day = getAEST(day)
-
   // Get the start and end of the day, and pass those in as the time range.
   const start = getStartOfDayFromDate(day)
   const end = getEndOfDayFromDate(day)
@@ -85,15 +79,9 @@ entryRouter.post('/list-batch-daily', isLoggedIn, async (req, res) => {
       }
       // Update record.
       const entries = await listEntriesPerExerciseOnDate(id, start, end)
-      // TODO: Determine how to send the response back. Might need to send all the entries and map on FE
-      // TODO: Might be able to show all the user's entries for that day if need?
-      // allEntries = {
-      //   ...allEntries,
-      //   [id]: entries,
-      // }
       allEntries = {
         ...allEntries,
-        [id]: entries.reduce((prev, curr) => prev + curr.amount, 0)
+        [id]: entries,
       }
     } catch (e) {
       console.error(e)
