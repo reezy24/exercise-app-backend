@@ -18,7 +18,7 @@ leaderboardRouter.post('/', async (req, res) => {
   const start = getStartOfDayFromDate(from)
   const end = getEndOfDayFromDate(to)
 
-  let leaderboardData = await getDailyLeaderboardData(start, end, userId)
+  let leaderboardData = await getDailyLeaderboardData(start, end)
   // Calculate the percentages and strip the data we don't need.
   const leaderboardPercentages = leaderboardData.reduce((acc, entry) => {
     const exercisePercentage = calculateExercisePercentage(entry)
